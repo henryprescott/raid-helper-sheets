@@ -5,23 +5,34 @@ const client = new Discord.Client()
 
 var classReactionsMap = ["Tank", "Warrior", "Rogue", "Hunter", "Mage", "Warlock", "Priest", "Shadow", "RestoShaman", "Enhancer", "Elemental", "RestoDruid", "Bear", "Feral", "Balance", "Late", "Bench", "Tentative", "Absence"];
 
+var userRoles = {};
 
 client.on("ready", () => {
     console.log(`Logged in as ${client.user.tag}!`)
 })
-client.on("message", msg => {
+client.on("message", async msg => {
     if (msg.content === "!roleCount") {
         msg.delete({ timeout: 100 });
 
-        var reactionIndex = 0;
+        const eventMessage = await client.channels.cache.get("714872746072473621").messages.fetch("714872961911226459");
 
-        client.channels.cache.get("714872746072473621").messages.fetch()
-            .then(messages => messages.forEach(message => message.reactions.cache.forEach( reaction =>  {
-                if(reaction.count > 1) {
-                    msg.channel.send(`Role: ${classReactionsMap[reactionIndex]}`);
+        const eventReactions = await eventMessage.reactions.cache.array();
+
+        let reaction;
+
+        for (reaction in eventReactions) {
+            if(eventReactions[reaction].count > 1) {
+                const users = (await eventReactions[reaction].users.fetch()).array();
+
+                let user;
+
+                for (user in users) {
+                    if(!users[user].bot) {
+                        console.log(`Role: ${eventReactions[reaction].emoji.name}, username: ${users[user].username}`);
+                    }
                 }
-                reactionIndex++;
-            })))
+            }
+        }
     }
 })
 client.login(config.botToken)
