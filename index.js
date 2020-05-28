@@ -42,5 +42,11 @@ client.on("message", async msg => {
         }
     }
 })
-client.login(config.botToken)
+
+try {
+    client.login(config.botToken)
+} catch (e) {
+    console.log("Bot failed to login to discord.");
+}
+
 
