@@ -1,4 +1,4 @@
-var config = require('./config.js');
+require('dotenv').config();
 
 const Discord = require("discord.js")
 const client = new Discord.Client()
@@ -44,7 +44,7 @@ client.on("message", async msg => {
 })
 
 try {
-    client.login(config.botToken)
+    client.login(process.env.DISCORD_BOT_TOKEN)
 } catch (e) {
     console.log("Bot failed to login to discord.");
 }
