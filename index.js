@@ -14,24 +14,31 @@ client.on("message", async msg => {
     if (msg.content === "!roleCount") {
         msg.delete({ timeout: 100 });
 
-        const eventMessage = await client.channels.cache.get("714872746072473621").messages.fetch("714872961911226459");
+        try {
 
-        const eventReactions = await eventMessage.reactions.cache.array();
+            const eventMessage = await client.channels.cache.get("714872746072473621").messages.fetch("715509947214856252");
 
-        let reaction;
+            const embedFields = eventMessage.embeds[0].fields;
 
-        for (reaction in eventReactions) {
-            if(eventReactions[reaction].count > 1) {
-                const users = (await eventReactions[reaction].users.fetch()).array();
+            for (let field in embedFields) {
+                console.log(embedFields[field].value)
+            }
 
-                let user;
+            const eventReactions = await eventMessage.reactions.cache.array();
 
-                for (user in users) {
-                    if(!users[user].bot) {
-                        console.log(`Role: ${eventReactions[reaction].emoji.name}, username: ${users[user].username}`);
+            for (let reaction in eventReactions) {
+                if (eventReactions[reaction].count > 1) {
+                    const users = (await eventReactions[reaction].users.fetch()).array();
+
+                    for (let user in users) {
+                        if (!users[user].bot) {
+                            console.log(`Role: ${eventReactions[reaction].emoji.name}, username: ${users[user].username}`);
+                        }
                     }
                 }
             }
+        } catch (error) {
+            console.log(`failed to count roles: ${error}`);
         }
     }
 })
