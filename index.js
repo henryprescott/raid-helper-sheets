@@ -42,13 +42,13 @@ client.on("message", async msg => {
 
             for(let role in raidHelperReactions) {
 
-                console.log(embedFields[field].value);
-
                 let field = embedStartIndex;
+
+                console.log(embedFields[field].value);
 
                 for ( field in embedFields) {
                     // need to do some REGEX here to grab useful info from value?
-                    var role_name_regular_expression = new RegExp(":(" + raidHelperReactions[role] + "):", "gm");
+                    let role_name_regular_expression = new RegExp(":(" + raidHelperReactions[role] + "):", "gm");
 
                     if(role_name_regular_expression.test(embedFields[field])) {
                         let role_info_regular_expression = /\*{2}(.*?)\*{2}/gm;
