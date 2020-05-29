@@ -26,28 +26,28 @@ client.on("message", async msg => {
             console.log(process.env.GOOGLE_PRIVATE_KEY);
 
             // use service account creds
-            await doc.useServiceAccountAuth({
-                client_email: process.env.GOOGLE_SERVICE_ACCOUNT_EMAIL,
-                private_key: process.env.GOOGLE_PRIVATE_KEY,
-            });
-
-            await doc.loadInfo(); // loads document properties and worksheets
-            console.log(doc.title);
-
-            let testSheet;
-
-            for(let sheet in doc.sheetsByIndex) {
-                // const sheet = doc.sheetsByIndex[0]; // or use doc.sheetsById[id]
-                // console.log(doc.sheetsByIndex[sheet].title);
-                // console.log(doc.sheetsByIndex[sheet].rowCount);
-
-                if(doc.sheetsByIndex[sheet].title == "Test Sheet")
-                {
-                    testSheet = doc.sheetsByIndex[sheet];
-
-                    await testSheet.loadCells('A1:E100');
-                }
-            }
+            // await doc.useServiceAccountAuth({
+            //     client_email: process.env.GOOGLE_SERVICE_ACCOUNT_EMAIL,
+            //     private_key: process.env.GOOGLE_PRIVATE_KEY,
+            // });
+            //
+            // await doc.loadInfo(); // loads document properties and worksheets
+            // console.log(doc.title);
+            //
+            // let testSheet;
+            //
+            // for(let sheet in doc.sheetsByIndex) {
+            //     // const sheet = doc.sheetsByIndex[0]; // or use doc.sheetsById[id]
+            //     // console.log(doc.sheetsByIndex[sheet].title);
+            //     // console.log(doc.sheetsByIndex[sheet].rowCount);
+            //
+            //     if(doc.sheetsByIndex[sheet].title == "Test Sheet")
+            //     {
+            //         testSheet = doc.sheetsByIndex[sheet];
+            //
+            //         await testSheet.loadCells('A1:E100');
+            //     }
+            // }
 
             // replace with event tracking/searching - currently hardcoded to a specific message
             const eventMessage = await client.channels.cache.get("714872746072473621").messages.fetch("715509947214856252");
@@ -129,15 +129,15 @@ client.on("message", async msg => {
             // console.log("Sign up order:");
             // console.log(sign_up_order);
 
-            for(let i = 0; i < raidHelperReactions.length; i++) {
-                for(let j = 0; j < role_sign_up_data[raidHelperReactions[i]].length; j++) {
-                    console.log(role_sign_up_data[raidHelperReactions[i]][j]);
-                    const a1 = testSheet.getCell(i, j);
-                    a1.value = role_sign_up_data[raidHelperReactions[i]][j][0];
-                }
-            }
-
-            await testSheet.saveUpdatedCells();
+            // for(let i = 0; i < raidHelperReactions.length; i++) {
+            //     for(let j = 0; j < role_sign_up_data[raidHelperReactions[i]].length; j++) {
+            //         console.log(role_sign_up_data[raidHelperReactions[i]][j]);
+            //         const a1 = testSheet.getCell(i, j);
+            //         a1.value = role_sign_up_data[raidHelperReactions[i]][j][0];
+            //     }
+            // }
+            //
+            // await testSheet.saveUpdatedCells();
 
         } catch (error) {
             console.log(`failed to count roles: ${error}`);
