@@ -32,8 +32,8 @@ client.on("message", async msg => {
             try {
                 // use service account creds
                 await doc.useServiceAccountAuth({
-                    client_email: process.env.GOOGLE_SERVICE_ACCOUNT_EMAIL,
-                    private_key: private_value,
+                    client_email: JSON.parse(`"${process.env.GOOGLE_SERVICE_ACCOUNT_EMAIL}"`),
+                    private_key: JSON.parse(`"${process.env.GOOGLE_PRIVATE_KEY}"`),
                 });
             } catch (e) {
                 console.log("Google Sheets auth failed");
