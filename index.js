@@ -17,7 +17,13 @@ client.on("message", async msg => {
 
         try {
             // spreadsheet key is the long id in the sheets URL
+
+            console.log(process.env.GOOGLE_SPREADSHEET_ID);
+
             const doc = new GoogleSpreadsheet(process.env.GOOGLE_SPREADSHEET_ID);
+
+            console.log(process.env.GOOGLE_SERVICE_ACCOUNT_EMAIL);
+            console.log(process.env.GOOGLE_PRIVATE_KEY);
 
             // use service account creds
             await doc.useServiceAccountAuth({
