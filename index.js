@@ -26,11 +26,15 @@ client.on("message", async msg => {
             // console.log(process.env.GOOGLE_SERVICE_ACCOUNT_EMAIL);
             // console.log(process.env.GOOGLE_PRIVATE_KEY);
 
-            // use service account creds
-            await doc.useServiceAccountAuth({
-                client_email: process.env.GOOGLE_SERVICE_ACCOUNT_EMAIL,
-                private_key: process.env.GOOGLE_PRIVATE_KEY,
-            });
+            try {
+                // use service account creds
+                await doc.useServiceAccountAuth({
+                    client_email: process.env.GOOGLE_SERVICE_ACCOUNT_EMAIL,
+                    private_key: process.env.GOOGLE_PRIVATE_KEY,
+                });
+            } catch (e) {
+                console.log("Google Sheets auth failed");
+            }
 
             try {
                 await doc.loadInfo(); // loads document properties and worksheets
