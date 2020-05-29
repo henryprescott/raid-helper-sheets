@@ -31,6 +31,7 @@ client.on("message", async msg => {
                 }
             }
 
+            console.log("Roles:");
             console.log(raidHelperReactions);
 
             // 2. build map/array of roles & map/array of sign-up order
@@ -40,28 +41,53 @@ client.on("message", async msg => {
 
             let embedStartIndex = 0;
 
+            let role_sign_up_data = {};
+            let sign_up_order = {};
+
             for(let role in raidHelperReactions) {
 
                 let field = embedStartIndex;
 
-                console.log(embedFields[field].value);
+                let role_data = [];
 
                 for ( field in embedFields) {
-                    // need to do some REGEX here to grab useful info from value?
-                    let role_name_regular_expression = new RegExp(":(" + raidHelperReactions[role] + "):", "gm");
+                    let role_name_regex = new RegExp(":(" + raidHelperReactions[role] + "):", "gm");
 
-                    if(role_name_regular_expression.test(embedFields[field])) {
-                        let role_info_regular_expression = /\*{2}(.*?)\*{2}/gm;
-                        console.log(`role: ${role}`);
-                        console.log(`role_name_regular_expression: ${role_name_regular_expression}`);
-                        if(role_info_regular_expression.test(embedFields[field])) {
-                            console.log(`role_info_regular_expression: ${role_info_regular_expression}`);
+                    if(role_name_regex.test(embedFields[field].value)) {
+                        let raw_role_data = embedFields[field].value.split("\n");
+
+                        // remove title
+                        raw_role_data.splice(0, 1);
+
+                        for(let sign_up in raw_role_data) {
+                            let sign_up_order_regex = /\`{2}(.*?)\`{2}/gm;
+                            let username_regex = /\*{2}(.*?)\*{2}/gm;
+                            const signup_order_match = sign_up_order_regex.exec(raw_role_data[sign_up]);
+                            const signup_username_match = username_regex.exec(raw_role_data[sign_up]);
+
+                            if (signup_order_match != null && signup_username_match != null) {
+                                let sign_up_info = [];
+                                sign_up_info.push(signup_username_match[1]);
+                                sign_up_info.push(signup_order_match[1]); // going to keep order just in case
+
+                                role_data.push(sign_up_info);
+
+                                // map sign up order to username
+                                sign_up_order[signup_order_match[1]] = signup_username_match[1];
+                            }
                         }
                     }
-
+                    else {
+                        role_sign_up_data[raidHelperReactions[role]] = role_data;
+                    }
                     embedStartIndex++;
                 }
             }
+
+            console.log("Sign up data:");
+            console.log(role_sign_up_data);
+            console.log("Sign up order:");
+            console.log(sign_up_order);
         } catch (error) {
             console.log(`failed to count roles: ${error}`);
         }
