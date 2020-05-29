@@ -23,14 +23,17 @@ client.on("message", async msg => {
             // spreadsheet key is the long id in the sheets URL
             const doc = new GoogleSpreadsheet(process.env.GOOGLE_SPREADSHEET_ID);
 
-            // console.log(process.env.GOOGLE_SERVICE_ACCOUNT_EMAIL);
-            // console.log(process.env.GOOGLE_PRIVATE_KEY);
+            // for heroku
+            let private_value = process.env.GOOGLE_PRIVATE_KEY.replace(/\\n/g, '\n');
+
+            console.log(process.env.GOOGLE_SERVICE_ACCOUNT_EMAIL);
+            console.log(private_value);
 
             try {
                 // use service account creds
                 await doc.useServiceAccountAuth({
                     client_email: process.env.GOOGLE_SERVICE_ACCOUNT_EMAIL,
-                    private_key: process.env.GOOGLE_PRIVATE_KEY,
+                    private_key: private_value,
                 });
             } catch (e) {
                 console.log("Google Sheets auth failed");
