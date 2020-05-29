@@ -32,20 +32,28 @@ client.on("message", async msg => {
                 private_key: process.env.GOOGLE_PRIVATE_KEY,
             });
 
-            await doc.loadInfo(); // loads document properties and worksheets
-            console.log(doc.title);
+            try {
+                await doc.loadInfo(); // loads document properties and worksheets
+            } catch (e) {
+                console.log("Failed to load Google Sheet Info.")
+            }
 
-            for(let sheet in doc.sheetsByIndex) {
-                // const sheet = doc.sheetsByIndex[0]; // or use doc.sheetsById[id]
-                // console.log(doc.sheetsByIndex[sheet].title);
-                // console.log(doc.sheetsByIndex[sheet].rowCount);
+            //console.log(doc.title);
 
-                if(doc.sheetsByIndex[sheet].title == "Test Sheet")
-                {
-                    testSheet = doc.sheetsByIndex[sheet];
+            try {
+                for (let sheet in doc.sheetsByIndex) {
+                    // const sheet = doc.sheetsByIndex[0]; // or use doc.sheetsById[id]
+                    // console.log(doc.sheetsByIndex[sheet].title);
+                    // console.log(doc.sheetsByIndex[sheet].rowCount);
 
-                    await testSheet.loadCells('A1:E100');
+                    if (doc.sheetsByIndex[sheet].title == "Test Sheet") {
+                        testSheet = doc.sheetsByIndex[sheet];
+
+                        await testSheet.loadCells('A1:E100');
+                    }
                 }
+            } catch (e) {
+                console.log("Failed to find test sheet and load cells.")
             }
         } catch (e) {
             console.log("Failed to get Google Sheet.")
@@ -136,12 +144,16 @@ client.on("message", async msg => {
             for(let i = 0; i < raidHelperReactions.length; i++) {
                 for(let j = 0; j < role_sign_up_data[raidHelperReactions[i]].length; j++) {
                     console.log(role_sign_up_data[raidHelperReactions[i]][j]);
-                    const a1 = testSheet.getCell(i, j);
-                    a1.value = role_sign_up_data[raidHelperReactions[i]][j][0];
+                    if (testSheet != null) {
+                        const a1 = testSheet.getCell(i, j);
+                        a1.value = role_sign_up_data[raidHelperReactions[i]][j][0];
+                    }
                 }
             }
 
-            await testSheet.saveUpdatedCells();
+            if (testSheet != null) {
+                await testSheet.saveUpdatedCells();
+            }
 
         } catch (error) {
             console.log(`failed to count roles: ${error}`);
