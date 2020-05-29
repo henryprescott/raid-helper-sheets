@@ -1,16 +1,48 @@
+'use strict'
+
 require('dotenv').config();
+
+const { GoogleSpreadsheet } = require('google-spreadsheet');
 
 const Discord = require("discord.js")
 const client = new Discord.Client()
 
-client.on("ready", () => {
+client.on("ready",() => {
     console.log(`Logged in as ${client.user.tag}!`)
 })
+
 client.on("message", async msg => {
     if (msg.content === "!roleCount") {
         msg.delete({ timeout: 100 });
 
         try {
+            // spreadsheet key is the long id in the sheets URL
+            const doc = new GoogleSpreadsheet(process.env.GOOGLE_SPREADSHEET_ID);
+
+            // use service account creds
+            await doc.useServiceAccountAuth({
+                client_email: process.env.GOOGLE_SERVICE_ACCOUNT_EMAIL,
+                private_key: process.env.GOOGLE_PRIVATE_KEY,
+            });
+
+            await doc.loadInfo(); // loads document properties and worksheets
+            console.log(doc.title);
+
+            let testSheet;
+
+            for(let sheet in doc.sheetsByIndex) {
+                // const sheet = doc.sheetsByIndex[0]; // or use doc.sheetsById[id]
+                // console.log(doc.sheetsByIndex[sheet].title);
+                // console.log(doc.sheetsByIndex[sheet].rowCount);
+
+                if(doc.sheetsByIndex[sheet].title == "Test Sheet")
+                {
+                    testSheet = doc.sheetsByIndex[sheet];
+
+                    await testSheet.loadCells('A1:E100');
+                }
+            }
+
             // replace with event tracking/searching - currently hardcoded to a specific message
             const eventMessage = await client.channels.cache.get("714872746072473621").messages.fetch("715509947214856252");
 
@@ -53,6 +85,8 @@ client.on("message", async msg => {
                 for ( field in embedFields) {
                     let role_name_regex = new RegExp(":(" + raidHelperReactions[role] + "):", "gm");
 
+                    // console.log(embedFields[field].value)
+
                     if(role_name_regex.test(embedFields[field].value)) {
                         let raw_role_data = embedFields[field].value.split("\n");
 
@@ -84,10 +118,21 @@ client.on("message", async msg => {
                 }
             }
 
-            console.log("Sign up data:");
-            console.log(role_sign_up_data);
-            console.log("Sign up order:");
-            console.log(sign_up_order);
+            // console.log("Sign up data:");
+            // console.log(role_sign_up_data);
+            // console.log("Sign up order:");
+            // console.log(sign_up_order);
+
+            for(let i = 0; i < raidHelperReactions.length; i++) {
+                for(let j = 0; j < role_sign_up_data[raidHelperReactions[i]].length; j++) {
+                    console.log(role_sign_up_data[raidHelperReactions[i]][j]);
+                    const a1 = testSheet.getCell(i, j);
+                    a1.value = role_sign_up_data[raidHelperReactions[i]][j][0];
+                }
+            }
+
+            await testSheet.saveUpdatedCells();
+
         } catch (error) {
             console.log(`failed to count roles: ${error}`);
         }
