@@ -15,11 +15,12 @@ client.on("message", async msg => {
     if (msg.content === "!roleCount") {
         msg.delete({ timeout: 100 });
 
-        try {
-            // spreadsheet key is the long id in the sheets URL
+        let testSheet;
 
+        try {
             // console.log(process.env.GOOGLE_SPREADSHEET_ID);
 
+            // spreadsheet key is the long id in the sheets URL
             const doc = new GoogleSpreadsheet(process.env.GOOGLE_SPREADSHEET_ID);
 
             // console.log(process.env.GOOGLE_SERVICE_ACCOUNT_EMAIL);
@@ -34,21 +35,24 @@ client.on("message", async msg => {
             await doc.loadInfo(); // loads document properties and worksheets
             console.log(doc.title);
 
-            // let testSheet;
-            //
-            // for(let sheet in doc.sheetsByIndex) {
-            //     // const sheet = doc.sheetsByIndex[0]; // or use doc.sheetsById[id]
-            //     // console.log(doc.sheetsByIndex[sheet].title);
-            //     // console.log(doc.sheetsByIndex[sheet].rowCount);
-            //
-            //     if(doc.sheetsByIndex[sheet].title == "Test Sheet")
-            //     {
-            //         testSheet = doc.sheetsByIndex[sheet];
-            //
-            //         await testSheet.loadCells('A1:E100');
-            //     }
-            // }
+            for(let sheet in doc.sheetsByIndex) {
+                // const sheet = doc.sheetsByIndex[0]; // or use doc.sheetsById[id]
+                // console.log(doc.sheetsByIndex[sheet].title);
+                // console.log(doc.sheetsByIndex[sheet].rowCount);
 
+                if(doc.sheetsByIndex[sheet].title == "Test Sheet")
+                {
+                    testSheet = doc.sheetsByIndex[sheet];
+
+                    await testSheet.loadCells('A1:E100');
+                }
+            }
+        } catch (e) {
+            console.log("Failed to get Google Sheet.")
+        }
+
+
+        try {
             // replace with event tracking/searching - currently hardcoded to a specific message
             const eventMessage = await client.channels.cache.get("714872746072473621").messages.fetch("715509947214856252");
 
@@ -129,15 +133,15 @@ client.on("message", async msg => {
             // console.log("Sign up order:");
             // console.log(sign_up_order);
 
-            // for(let i = 0; i < raidHelperReactions.length; i++) {
-            //     for(let j = 0; j < role_sign_up_data[raidHelperReactions[i]].length; j++) {
-            //         console.log(role_sign_up_data[raidHelperReactions[i]][j]);
-            //         const a1 = testSheet.getCell(i, j);
-            //         a1.value = role_sign_up_data[raidHelperReactions[i]][j][0];
-            //     }
-            // }
-            //
-            // await testSheet.saveUpdatedCells();
+            for(let i = 0; i < raidHelperReactions.length; i++) {
+                for(let j = 0; j < role_sign_up_data[raidHelperReactions[i]].length; j++) {
+                    console.log(role_sign_up_data[raidHelperReactions[i]][j]);
+                    const a1 = testSheet.getCell(i, j);
+                    a1.value = role_sign_up_data[raidHelperReactions[i]][j][0];
+                }
+            }
+
+            await testSheet.saveUpdatedCells();
 
         } catch (error) {
             console.log(`failed to count roles: ${error}`);
