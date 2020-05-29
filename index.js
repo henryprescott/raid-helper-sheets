@@ -145,12 +145,39 @@ client.on("message", async msg => {
             // console.log("Sign up order:");
             // console.log(sign_up_order);
 
+            if (testSheet != null) {
+                const cell1 = testSheet.getCell(0, 0);
+                cell1.value = "Sign Up Order";
+
+                const cell2 = testSheet.getCell(0, 1);
+                cell2.value = "";
+
+                const cell3 = testSheet.getCell(0, 2);
+                cell3.value = "Roles";
+
+                const cell4 = testSheet.getCell(0, 3);
+                cell4.value = "";
+            }
+
+            for(let sign_up in sign_up_order) {
+                if (testSheet != null) {
+                    // console.log(`sign_up: ${sign_up}`);
+                    const cell1 = testSheet.getCell(sign_up, 0);
+                    cell1.value = sign_up;
+
+                    const cell2 = testSheet.getCell(sign_up, 1);
+                    cell2.value = sign_up_order[sign_up];
+                }
+            }
+
             for(let i = 0; i < raidHelperReactions.length; i++) {
+                const roleTitle = testSheet.getCell(i+1, 2);
+                roleTitle.value = raidHelperReactions[i];
                 for(let j = 0; j < role_sign_up_data[raidHelperReactions[i]].length; j++) {
-                    console.log(role_sign_up_data[raidHelperReactions[i]][j]);
+                    // console.log(`Cell: ${i}, ${j} - ${role_sign_up_data[raidHelperReactions[i]][j]}`);
                     if (testSheet != null) {
-                        const a1 = testSheet.getCell(i, j);
-                        a1.value = role_sign_up_data[raidHelperReactions[i]][j][0];
+                        const cell = testSheet.getCell(i+1, j+3);
+                        cell.value = role_sign_up_data[raidHelperReactions[i]][j][0];
                     }
                 }
             }
