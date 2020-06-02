@@ -11,6 +11,8 @@ client.on("ready",() => {
     console.log(`Logged in as ${client.user.tag}!`)
 })
 
+/* Google Spreadsheet code */
+
 async function getSpreadSheet(spreadsheetID) {
     const spreadsheet = new GoogleSpreadsheet(spreadsheetID);
 
@@ -40,7 +42,7 @@ async function getSpreadSheet(spreadsheetID) {
 
 const range_of_cells_to_load = 'A1:K100';
 
-async function eventAlreadyRecorded(sheetName) {
+async function checkEventSheetExists(sheetName) {
     try {
         const spreadsheet = await getSpreadSheet(process.env.GOOGLE_SPREADSHEET_ID);
 
@@ -73,15 +75,15 @@ async function createEventSheet(sheetName) {
         const spreadsheet = await getSpreadSheet(process.env.GOOGLE_SPREADSHEET_ID);
 
         try {
-            const newSheet = await spreadsheet.addSheet({ title: sheetName });
+            const new_sheet = await spreadsheet.addSheet({ title: sheetName });
 
-            await newSheet.updateProperties({ index: 0 });
+            await new_sheet.updateProperties({ index: 0 });
 
-            await newSheet.loadCells(range_of_cells_to_load); // TODO this may need tweaking WARNING!
+            await new_sheet.loadCells(range_of_cells_to_load); // TODO this may need tweaking WARNING!
 
             console.log(`Created new sheet: ${sheetName}.`);
 
-            return newSheet;
+            return new_sheet;
         } catch (e) {
             console.log(`Failed to create new sheet: ${sheetName}.`);
         }
@@ -91,6 +93,48 @@ async function createEventSheet(sheetName) {
 
     return null;
 }
+
+async function updateEventSheet(event_sheet, sign_up_order, raid_helper_reactions, role_sign_up_data) {
+    const order_title_cell = event_sheet.getCell(0, 0);
+    order_title_cell.value = "Sign Up Order";
+
+    const order_spacer_cell = event_sheet.getCell(0, 1);
+    order_spacer_cell.value = "";
+
+    const roles_title_cell = event_sheet.getCell(0, 2);
+    roles_title_cell.value = "Roles";
+
+    const roles_spacer_cell = event_sheet.getCell(0, 3);
+    roles_spacer_cell.value = "";
+
+    for (let sign_up in sign_up_order) {
+        if (event_sheet != null) {
+            // console.log(`sign_up: ${sign_up}`);
+            const order_cell = event_sheet.getCell(sign_up, 0);
+            order_cell.value = sign_up;
+
+            const username_cell = event_sheet.getCell(sign_up, 1);
+            username_cell.value = sign_up_order[sign_up];
+        }
+    }
+
+    for (let i = 0; i < raid_helper_reactions.length; i++) {
+        const role_title = event_sheet.getCell(i + 1, 2);
+        role_title.value = raid_helper_reactions[i];
+        let role_sign_up_data = role_sign_up_data;
+        for (let j = 0; j < role_sign_up_data[raid_helper_reactions[i]].length; j++) {
+            // console.log(`Cell: ${i}, ${j} - ${role_sign_up_data[raid_helper_reactions[i]][j]}`);
+            if (event_sheet != null) {
+                const cell = event_sheet.getCell(i + 1, j + 3);
+                cell.value = role_sign_up_data[raid_helper_reactions[i]][j][0];
+            }
+        }
+    }
+
+    await event_sheet.saveUpdatedCells();
+}
+
+/* Regular expression code */
 
 function regexMatchAll(regular_expression, content) {
     let result = [...content.matchAll(regular_expression)];
@@ -122,25 +166,7 @@ function regexFirstMatch(regular_expression, content) {
     }
 }
 
-client.on("messageReactionAdd", async (reaction, user) => {
-    // if(reaction.message.author.bot && reaction.message.author.username === "Raid-Helper") {
-    // When we receive a reaction we check if the reaction is partial or not
-    if (reaction.partial) {
-        // If the message this reaction belongs to was removed the fetching might result in an API error, which we need to handle
-        try {
-            await reaction.fetch();
-        } catch (error) {
-            console.log('Something went wrong when fetching the message: ', error);
-            // Return as `reaction.message.author` may be undefined/null
-            return;
-        }
-    }
-    // Now the message has been cached and is fully available
-    console.log(`${reaction.message.author}'s message "${reaction.message.content}" gained a reaction!`);
-    // The reaction is now also fully available and the properties will be reflected accurately:
-    console.log(`${reaction.count} user(s) have given the same reaction to this message!`);
-    // }
-})
+/* functions pulling details out of raid-helper events*/
 
 function getEventTitle(eventMessage) {
     const titleField = eventMessage.embeds[0].fields[0];
@@ -201,35 +227,111 @@ function getEventDate(event_message) {
     return date_text;
 }
 
+function getEventData(event_message, raid_helper_reactions) {
+    // iterate through embed fields to extract role counts, order and populate above
+    const embed_fields = event_message.embeds[0].fields;
+
+    let embed_start_index = 0;
+
+    let role_sign_up_data = {};
+    let sign_up_order = {};
+
+    for (let role in raid_helper_reactions) {
+
+        let field = embed_start_index; // trying to optimise loop, start from where we left off rather that scratch for each role
+
+        let role_data = [];
+
+        for (field in embed_fields) {
+            let role_name_regex = new RegExp(":(" + raid_helper_reactions[role] + "):", "gm");
+
+            // console.log(embed_fields[field].value)
+
+            if (role_name_regex.test(embed_fields[field].value)) { // current field contains a role we're looking for
+                let raw_role_data = embed_fields[field].value.split("\n"); // all entries are grouped together, so split them
+
+                // remove title as it just contains role name, no info we're interested in
+                raw_role_data.splice(0, 1);
+
+                for (let sign_up in raw_role_data) {
+                    const sign_up_order_regex = /\`{2}(.*?)\`{2}/gm; // everything between ``<find stuff here>``
+                    const username_regex = /\*{2}(.*?)\*{2}/gm; // everything between **<find stuff here>**
+
+                    const signup_order_match = regexFirstMatch(sign_up_order_regex, raw_role_data[sign_up]); // null if nothing found
+                    const signup_username_match = regexFirstMatch(username_regex, raw_role_data[sign_up]); // null if nothing found
+
+                    if (signup_order_match != null && signup_username_match != null) {
+                        let sign_up_info = [];
+                        sign_up_info.push(signup_username_match);
+                        sign_up_info.push(signup_order_match); // going to keep order just in case
+
+                        role_data.push(sign_up_info);
+
+                        // map sign up order to username
+                        sign_up_order[signup_order_match] = signup_username_match;
+                    }
+                }
+            } else {
+                role_sign_up_data[raid_helper_reactions[role]] = role_data;
+            }
+            embed_start_index++;
+        }
+    }
+
+    // console.log("Sign up data:");
+    // console.log(role_sign_up_data);
+    // console.log("Sign up order:");
+    // console.log(sign_up_order);
+    return {role_sign_up_data, sign_up_order};
+}
+
+async function getEventReactions(event_message) {
+    // build up role list from raid-helper bot reactions (as roles & classes may vary across factions etc)
+    const reactions = await event_message.reactions.cache.array();
+
+    let raid_helper_reactions = [];
+
+    for (let reaction in reactions) {
+        const users = (await reactions[reaction].users.fetch()).array();
+
+        for (let user in users) {
+            if (users[user].bot) {
+                raid_helper_reactions.push(reactions[reaction].emoji.name)
+                // console.log(`Role: ${eventReactions[reaction].emoji.name}, username: ${users[user].username}`);
+                break;
+            }
+        }
+    }
+    return raid_helper_reactions;
+}
+
+/* Discord JS specific code */
+
+client.on("messageReactionAdd", async (reaction, user) => {
+    // if(reaction.message.author.bot && reaction.message.author.username === "Raid-Helper") {
+    // When we receive a reaction we check if the reaction is partial or not
+    if (reaction.partial) {
+        // If the message this reaction belongs to was removed the fetching might result in an API error, which we need to handle
+        try {
+            await reaction.fetch();
+        } catch (error) {
+            console.log('Something went wrong when fetching the message: ', error);
+            // Return as `reaction.message.author` may be undefined/null
+            return;
+        }
+    }
+    // Now the message has been cached and is fully available
+    console.log(`${reaction.message.author}'s message "${reaction.message.content}" gained a reaction!`);
+    // The reaction is now also fully available and the properties will be reflected accurately:
+    console.log(`${reaction.count} user(s) have given the same reaction to this message!`);
+    // }
+})
+
 client.on("message", async msg => {
     if (msg.content === "!roleCount") {
         msg.delete({ timeout: 100 });
 
-        let testSheet;
-
-        // try {
-        //     // spreadsheet key is the long id in the sheets URL
-        //     const spreadsheet = await getSpreadSheet();
-        //
-        //     try {
-        //         for (let sheet in spreadsheet.sheetsByIndex) {
-        //             // const sheet = doc.sheetsByIndex[0]; // or use doc.sheetsById[id]
-        //             // console.log(doc.sheetsByIndex[sheet].title);
-        //             // console.log(doc.sheetsByIndex[sheet].rowCount);
-        //
-        //             if (spreadsheet.sheetsByIndex[sheet].title == "Test Sheet") {
-        //                 testSheet = spreadsheet.sheetsByIndex[sheet];
-        //
-        //                 await testSheet.loadCells(range_of_cells_to_load);
-        //             }
-        //         }
-        //     } catch (e) {
-        //         console.log("Failed to find test sheet and load cells.")
-        //     }
-        // } catch (e) {
-        //     console.log("Failed to get Google Sheet.")
-        // }
-
+        let event_sheet;
 
         try {
             // replace with event tracking/searching - currently hardcoded to a specific message
@@ -248,129 +350,24 @@ client.on("message", async msg => {
 
                 const sheet_name = date_text + ` | ` + event_title;
 
-                testSheet = await eventAlreadyRecorded(sheet_name);
+                event_sheet = await checkEventSheetExists(sheet_name);
 
-                if(testSheet == null)
+                if(event_sheet == null)
                 {
-                    testSheet = await createEventSheet(sheet_name);
+                    event_sheet = await createEventSheet(sheet_name);
                 }
 
                 console.log(`Sheet name: ${sheet_name}`);
 
-                // build up role list from raid-helper bot reactions (as roles & classes may vary across factions etc)
-                const reactions = await event_message.reactions.cache.array();
-
-                let raid_helper_reactions = [];
-
-                for (let reaction in reactions) {
-                    const users = (await reactions[reaction].users.fetch()).array();
-
-                    for (let user in users) {
-                        if (users[user].bot) {
-                            raid_helper_reactions.push(reactions[reaction].emoji.name)
-                            // console.log(`Role: ${eventReactions[reaction].emoji.name}, username: ${users[user].username}`);
-                            break;
-                        }
-                    }
-                }
+                let raid_helper_reactions = await getEventReactions(event_message);
 
                 console.log("Roles:");
                 console.log(raid_helper_reactions);
 
-                // iterate through embed fields to extract role counts, order and populate above
-                const embed_fields = event_message.embeds[0].fields;
+                let {role_sign_up_data, sign_up_order} = getEventData(event_message, raid_helper_reactions);
 
-                let embed_start_index = 0;
-
-                let role_sign_up_data = {};
-                let sign_up_order = {};
-
-                for (let role in raid_helper_reactions) {
-
-                    let field = embed_start_index; // trying to optimise loop, start from where we left off rather that scratch for each role
-
-                    let role_data = [];
-
-                    for (field in embed_fields) {
-                        let role_name_regex = new RegExp(":(" + raid_helper_reactions[role] + "):", "gm");
-
-                        // console.log(embed_fields[field].value)
-
-                        if (role_name_regex.test(embed_fields[field].value)) { // current field contains a role we're looking for
-                            let raw_role_data = embed_fields[field].value.split("\n"); // all entries are grouped together, so split them
-
-                            // remove title as it just contains role name, no info we're interested in
-                            raw_role_data.splice(0, 1);
-
-                            for (let sign_up in raw_role_data) {
-                                const sign_up_order_regex = /\`{2}(.*?)\`{2}/gm; // everything between ``<find stuff here>``
-                                const username_regex = /\*{2}(.*?)\*{2}/gm; // everything between **<find stuff here>**
-
-                                const signup_order_match = regexFirstMatch(sign_up_order_regex, raw_role_data[sign_up]); // null if nothing found
-                                const signup_username_match = regexFirstMatch(username_regex, raw_role_data[sign_up]); // null if nothing found
-
-                                if (signup_order_match != null && signup_username_match != null) {
-                                    let sign_up_info = [];
-                                    sign_up_info.push(signup_username_match);
-                                    sign_up_info.push(signup_order_match); // going to keep order just in case
-
-                                    role_data.push(sign_up_info);
-
-                                    // map sign up order to username
-                                    sign_up_order[signup_order_match] = signup_username_match;
-                                }
-                            }
-                        } else {
-                            role_sign_up_data[raid_helper_reactions[role]] = role_data;
-                        }
-                        embed_start_index++;
-                    }
-                }
-
-                // console.log("Sign up data:");
-                // console.log(role_sign_up_data);
-                // console.log("Sign up order:");
-                // console.log(sign_up_order);
-
-                if (testSheet != null) {
-                    const cell1 = testSheet.getCell(0, 0);
-                    cell1.value = "Sign Up Order";
-
-                    const cell2 = testSheet.getCell(0, 1);
-                    cell2.value = "";
-
-                    const cell3 = testSheet.getCell(0, 2);
-                    cell3.value = "Roles";
-
-                    const cell4 = testSheet.getCell(0, 3);
-                    cell4.value = "";
-                }
-
-                for (let sign_up in sign_up_order) {
-                    if (testSheet != null) {
-                        // console.log(`sign_up: ${sign_up}`);
-                        const cell1 = testSheet.getCell(sign_up, 0);
-                        cell1.value = sign_up;
-
-                        const cell2 = testSheet.getCell(sign_up, 1);
-                        cell2.value = sign_up_order[sign_up];
-                    }
-                }
-
-                for (let i = 0; i < raid_helper_reactions.length; i++) {
-                    const roleTitle = testSheet.getCell(i + 1, 2);
-                    roleTitle.value = raid_helper_reactions[i];
-                    for (let j = 0; j < role_sign_up_data[raid_helper_reactions[i]].length; j++) {
-                        // console.log(`Cell: ${i}, ${j} - ${role_sign_up_data[raid_helper_reactions[i]][j]}`);
-                        if (testSheet != null) {
-                            const cell = testSheet.getCell(i + 1, j + 3);
-                            cell.value = role_sign_up_data[raid_helper_reactions[i]][j][0];
-                        }
-                    }
-                }
-
-                if (testSheet != null) {
-                    await testSheet.saveUpdatedCells();
+                if (event_sheet != null) {
+                    await updateEventSheet(event_sheet, sign_up_order, raid_helper_reactions, role_sign_up_data);
                 }
             }
         } catch (error) {
