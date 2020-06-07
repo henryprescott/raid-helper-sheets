@@ -150,9 +150,9 @@ function writeSavedSettings(filename, message_ids) {
     });
 }
 
-function getSavedSettings(server_name) {
+function getSavedSettings(guild_id) {
 
-    let filename = `./` + server_name + `.json`;
+    let filename = `./` + guild_id + `.json`;
 
     let savedData = [];
 
@@ -165,7 +165,7 @@ function getSavedSettings(server_name) {
             savedData = [];
         }
     } catch (e) {
-        throw `Failed to load saved settings for: ${server_name}.`;
+        throw `Failed to load saved settings for: ${guild_id}.`;
     }
 
     return savedData;
@@ -367,20 +367,34 @@ async function getEventReactions(event_message) {
 
 /* pulled from https://stackoverflow.com/questions/60609287/discord-js-get-a-list-of-all-users-sent-messages */
 async function userMessages(guildID, userID){
-    client.guilds.cache.get(guildID).channels.cache.forEach(ch => {
-        if (ch.type === 'text'){
-            ch.messages.fetch({
-                limit: 1000 // TODO this might need adjusting
-            }).then(messages => {
-                const msgs = messages.filter(m => m.author.id === userID)
-                msgs.forEach(m => {
-                    console.log(`${m.content} - ${m.channel.name}`)
-                })
-            })
-        } else {
-            return;
+    let event_message_ids = [];
+
+    const channels = await client.guilds.cache.get(guildID).channels.cache.array();
+
+    for(let i = 0; i < channels.length; i++) {
+        if (channels[i].type === 'text') {
+            const messages = await channels[i].messages.fetch();
+
+            const filtered_messages = messages.filter(m => m.author.id === userID).array();
+
+            for(let j = 0; j < filtered_messages.length; j++) {
+                if(filtered_messages[j].embeds.length > 0) {
+
+                    const title_regex = /\*{2}(.*?)\*{2}/gm; // everything between **<find stuff here>**
+
+                    const title_match = regexFirstMatch(title_regex, filtered_messages[j].embeds[0].fields[1].value); // null if nothing found
+
+                    if(title_match != null && title_match === "Info:") {
+                        console.log(`Event found: ${filtered_messages[j].id}`)
+                        event_message_ids.push(filtered_messages[j].id);
+                    }
+                }
+            }
         }
-    })
+    }
+
+    console.log(`Event message ids: ${event_message_ids}`)
+    return event_message_ids;
 }
 
 function doesUserPermission(member, msg) {
@@ -394,6 +408,20 @@ function doesUserPermission(member, msg) {
 }
 
 client.on("message", async msg => {
+
+    if (msg.content === "!clearConfig") {
+        msg.delete({timeout: 100});
+
+        const member = msg.channel.guild.members.cache.find(currentMember => currentMember.id === msg.author.id);
+
+        if(!doesUserPermission(member, msg))
+            return;
+
+        let filename = `./` + msg.channel.guild.id + `.json`;
+
+        writeSavedSettings(filename, []);
+    }
+
     if (msg.content === "!sync") {
         msg.delete({timeout: 100});
 
@@ -404,7 +432,11 @@ client.on("message", async msg => {
 
         const raid_bot = msg.channel.client.users.cache.find(currentMember => currentMember.username === "Raid-Helper");
 
-        await userMessages(msg.channel.guild.id, raid_bot.id);
+        const event_message_ids = await userMessages(msg.channel.guild.id, raid_bot.id);
+
+        let filename = `./` + msg.channel.guild.id + `.json`;
+
+        writeSavedSettings(filename, event_message_ids);
     }
 
     if (msg.content === "!updateSheet") {
@@ -419,39 +451,44 @@ client.on("message", async msg => {
 
         try {
             // replace with event tracking/searching - currently hardcoded to a specific message
-            const event_message = await client.channels.cache.get("714872746072473621").messages.fetch("715509947214856252");
 
-            if(event_message != null && event_message.author.username === "Raid-Helper") {
+            let event_message_ids = getSavedSettings();
 
-                if(event_message.embeds.length <= 0 || event_message.embeds[0].fields.length<= 0)
-                {
-                    throw "Message doesn't have embeds.";
-                }
+            for(let i = 0; i < event_message_ids.length; i++) {
+                const event_message = await client.channels.cache.get("714872746072473621").messages.fetch(event_message_ids[i]);
 
-                const event_title = getEventTitle(event_message);
+                if(event_message != null && event_message.author.username === "Raid-Helper") {
 
-                const date_text = getEventDate(event_message);
+                    if(event_message.embeds.length <= 0 || event_message.embeds[0].fields.length<= 0)
+                    {
+                        throw "Message doesn't have embeds.";
+                    }
 
-                const sheet_name = date_text + ` | ` + event_title;
+                    const event_title = getEventTitle(event_message);
 
-                event_sheet = await checkEventSheetExists(sheet_name);
+                    const date_text = getEventDate(event_message);
 
-                if(event_sheet == null)
-                {
-                    event_sheet = await createEventSheet(sheet_name);
-                }
+                    const sheet_name = date_text + ` | ` + event_title;
 
-                console.log(`Sheet name: ${sheet_name}`);
+                    event_sheet = await checkEventSheetExists(sheet_name);
 
-                let raid_helper_reactions = await getEventReactions(event_message);
+                    if(event_sheet == null)
+                    {
+                        event_sheet = await createEventSheet(sheet_name);
+                    }
 
-                console.log("Roles:");
-                console.log(raid_helper_reactions);
+                    console.log(`Sheet name: ${sheet_name}`);
 
-                let {role_sign_up_data, sign_up_order} = getEventData(event_message, raid_helper_reactions);
+                    let raid_helper_reactions = await getEventReactions(event_message);
 
-                if (event_sheet != null) {
-                    await updateEventSheet(event_sheet, sign_up_order, raid_helper_reactions, role_sign_up_data);
+                    console.log("Roles:");
+                    console.log(raid_helper_reactions);
+
+                    let {role_sign_up_data, sign_up_order} = getEventData(event_message, raid_helper_reactions);
+
+                    if (event_sheet != null) {
+                        await updateEventSheet(event_sheet, sign_up_order, raid_helper_reactions, role_sign_up_data);
+                    }
                 }
             }
         } catch (error) {
