@@ -2,6 +2,8 @@
 
 require('dotenv').config();
 
+const fs = require('fs')
+
 const { GoogleSpreadsheet } = require('google-spreadsheet');
 
 const Discord = require("discord.js")
@@ -131,6 +133,42 @@ async function updateEventSheet(event_sheet, sign_up_order, raid_helper_reaction
     }
 
     await event_sheet.saveUpdatedCells();
+}
+
+/* Saved settings */
+
+function writeSavedSettings(filename, message_ids) {
+
+    const jsonContent = JSON.stringify(message_ids);
+
+    fs.writeFile(filename, jsonContent, 'utf8', function (err) {
+        if (err) {
+            console.log(`Failed to save settings to ${filename}`);
+        }
+
+        console.log(`Settings saved to ${filename}: ${jsonContent}`);
+    });
+}
+
+function getSavedSettings(server_name) {
+
+    let filename = `./` + server_name + `.json`;
+
+    let savedData = [];
+
+    try {
+        if(fs.existsSync(filename)) {
+            savedData = JSON.parse(fs.readFileSync(filename, 'utf8')); // Load save data
+        }
+        else
+        {
+            savedData = [];
+        }
+    } catch (e) {
+        throw `Failed to load saved settings for: ${server_name}.`;
+    }
+
+    return savedData;
 }
 
 /* Regular expression code */
@@ -327,9 +365,55 @@ async function getEventReactions(event_message) {
 //     // }
 // })
 
+/* pulled from https://stackoverflow.com/questions/60609287/discord-js-get-a-list-of-all-users-sent-messages */
+async function userMessages(guildID, userID){
+    client.guilds.cache.get(guildID).channels.cache.forEach(ch => {
+        if (ch.type === 'text'){
+            ch.messages.fetch({
+                limit: 1000 // TODO this might need adjusting
+            }).then(messages => {
+                const msgs = messages.filter(m => m.author.id === userID)
+                msgs.forEach(m => {
+                    console.log(`${m.content} - ${m.channel.name}`)
+                })
+            })
+        } else {
+            return;
+        }
+    })
+}
+
+function doesUserPermission(member, msg) {
+    if (member.roles.cache.some(role => role.name === 'Admin') || role.name === 'Officer') {
+        console.log(`${msg.author.username} has permission to run.`);
+        return true;
+    } else {
+        console.log(`${msg.author.username} does not have permission to run.`);
+        return false;
+    }
+}
+
 client.on("message", async msg => {
-    if (msg.content === "!roleCount") {
+    if (msg.content === "!sync") {
+        msg.delete({timeout: 100});
+
+        const member = msg.channel.guild.members.cache.find(currentMember => currentMember.id === msg.author.id);
+
+        if(!doesUserPermission(member, msg))
+            return;
+
+        const raid_bot = msg.channel.client.users.cache.find(currentMember => currentMember.username === "Raid-Helper");
+
+        await userMessages(msg.channel.guild.id, raid_bot.id);
+    }
+
+    if (msg.content === "!updateSheet") {
         msg.delete({ timeout: 100 });
+
+        const member = msg.channel.guild.members.cache.find(currentMember => currentMember.id === msg.author.id);
+
+        if(!doesUserPermission(member, msg))
+            return;
 
         let event_sheet;
 
