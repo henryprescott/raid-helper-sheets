@@ -386,7 +386,10 @@ async function userMessages(guildID, userID){
 
                     if(title_match != null && title_match === "Info:") {
                         console.log(`Event found: ${filtered_messages[j].id}`)
-                        event_message_ids.push(filtered_messages[j].id);
+                        let channel_and_message_ids = [];
+                        channel_and_message_ids.push(channels[i].id);
+                        channel_and_message_ids.push(filtered_messages[j].id);
+                        event_message_ids.push(channel_and_message_ids);
                     }
                 }
             }
@@ -452,10 +455,10 @@ client.on("message", async msg => {
         try {
             // replace with event tracking/searching - currently hardcoded to a specific message
 
-            let event_message_ids = getSavedSettings();
+            let event_message_ids = getSavedSettings(msg.channel.guild.id);
 
             for(let i = 0; i < event_message_ids.length; i++) {
-                const event_message = await client.channels.cache.get("714872746072473621").messages.fetch(event_message_ids[i]);
+                const event_message = await client.channels.cache.get(event_message_ids[i][0]).messages.fetch(event_message_ids[i][1]);
 
                 if(event_message != null && event_message.author.username === "Raid-Helper") {
 
