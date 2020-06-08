@@ -344,166 +344,170 @@ async function getEventReactions(event_message) {
 
 /* Discord JS specific code */
 
-// commented for now in case it triggers too much server usage
-// client.on("messageReactionAdd", async (reaction, user) => {
-//     // if(reaction.message.author.bot && reaction.message.author.username === "Raid-Helper") {
-//     // When we receive a reaction we check if the reaction is partial or not
-//     if (reaction.partial) {
-//         // If the message this reaction belongs to was removed the fetching might result in an API error, which we need to handle
-//         try {
-//             await reaction.fetch();
-//         } catch (error) {
-//             console.log('Something went wrong when fetching the message: ', error);
-//             // Return as `reaction.message.author` may be undefined/null
-//             return;
-//         }
-//     }
-//     // Now the message has been cached and is fully available
-//     console.log(`${reaction.message.author}'s message "${reaction.message.content}" gained a reaction!`);
-//     // The reaction is now also fully available and the properties will be reflected accurately:
-//     console.log(`${reaction.count} user(s) have given the same reaction to this message!`);
-//     // }
-// })
-
 /* pulled from https://stackoverflow.com/questions/60609287/discord-js-get-a-list-of-all-users-sent-messages */
 async function userMessages(guildID, userID){
-    let event_message_ids = [];
+    try {
+        let event_message_ids = [];
 
-    const channels = await client.guilds.cache.get(guildID).channels.cache.array();
+        const channels = await client.guilds.cache.get(guildID).channels.cache.array();
 
-    for(let i = 0; i < channels.length; i++) {
-        if (channels[i].type === 'text') {
-
+        for(let i = 0; i < channels.length; i++) {
             try {
-                const messages = await channels[i].messages.fetch();
+                if (channels[i].type === 'text') {
 
-                const filtered_messages = messages.filter(m => m.author.id === userID).array();
+                        const messages = await channels[i].messages.fetch();
 
-                for(let j = 0; j < filtered_messages.length; j++) {
-                    if(filtered_messages[j].embeds.length > 0) {
+                        const filtered_messages = messages.filter(m => m.author.id === userID).array();
 
-                        const title_regex = /\*{2}(.*?)\*{2}/gm; // everything between **<find stuff here>**
+                        for(let j = 0; j < filtered_messages.length; j++) {
+                            if(filtered_messages[j].embeds.length > 0) {
 
-                        const title_match = regexFirstMatch(title_regex, filtered_messages[j].embeds[0].fields[1].value); // null if nothing found
+                                const title_regex = /\*{2}(.*?)\*{2}/gm; // everything between **<find stuff here>**
 
-                        if(title_match != null && title_match === "Info:") {
-                            // console.log(`Event found: ${filtered_messages[j].id}`)
-                            let channel_and_message_ids = [];
-                            channel_and_message_ids.push(channels[i].id);
-                            channel_and_message_ids.push(filtered_messages[j].id);
-                            event_message_ids.push(channel_and_message_ids);
+                                const title_match = regexFirstMatch(title_regex, filtered_messages[j].embeds[0].fields[1].value); // null if nothing found
+
+                                if(title_match != null && title_match === "Info:") {
+                                    // console.log(`Event found: ${filtered_messages[j].id}`)
+                                    let channel_and_message_ids = [];
+                                    channel_and_message_ids.push(channels[i].id);
+                                    channel_and_message_ids.push(filtered_messages[j].id);
+                                    event_message_ids.push(channel_and_message_ids);
+                                }
+                            }
                         }
-                    }
                 }
-
             } catch (e) {
                 console.log("Could not grab message from channel, moving on.")
                 continue;
             }
         }
-    }
 
-    console.log(`Event message ids: ${event_message_ids}`)
-    return event_message_ids;
+        console.log(`Event message ids: ${event_message_ids}`)
+        return event_message_ids;
+    } catch (e) {
+        console.log(`Failed to get channels available.`)
+        return [];
+    }
 }
 
-function doesUserPermission(member, msg) {
+async function extractInfoAndUpdateSheet(msg) {
+    try {
+        let event_message_ids = getSavedSettings(msg.channel.guild.id);
+
+        for (let i = 0; i < event_message_ids.length; i++) {
+            const event_message = await client.channels.cache.get(event_message_ids[i][0]).messages.fetch(event_message_ids[i][1]);
+
+            if (event_message != null && event_message.author.username === "Raid-Helper") {
+
+                if (event_message.embeds.length <= 0 || event_message.embeds[0].fields.length <= 0) {
+                    throw "Message doesn't have embeds.";
+                }
+
+                const event_title = getEventTitle(event_message);
+
+                const date_text = getEventDate(event_message);
+
+                const sheet_name = date_text + ` | ` + event_title;
+
+                let event_sheet = await checkEventSheetExists(sheet_name);
+
+                if (event_sheet == null) {
+                    event_sheet = await createEventSheet(sheet_name);
+                }
+
+                console.log(`Sheet name: ${sheet_name}`);
+
+                let raid_helper_reactions = await getEventReactions(event_message);
+
+                console.log("Roles:");
+                console.log(raid_helper_reactions);
+
+                let {role_sign_up_data, sign_up_order} = getEventData(event_message, raid_helper_reactions);
+
+                if (event_sheet != null) {
+                    await updateEventSheet(event_sheet, sign_up_order, raid_helper_reactions, role_sign_up_data);
+                }
+            }
+        }
+    } catch (error) {
+        console.log(`failed to count roles: ${error}`);
+    }
+}
+
+function checkUserRole(member, msg) {
+    // if admin or officer then has permission
     if (member.roles.cache.some(role => role.name === 'Admin' || role.name === 'Officer')) {
-        console.log(`${msg.author.username} has permission to run.`);
+        // console.log(`${msg.author.username} has permission to run.`);
         return true;
     } else {
-        console.log(`${msg.author.username} does not have permission to run.`);
+        // console.log(`${msg.author.username} does not have permission to run.`);
         return false;
     }
 }
 
+function userCanRunCommand(msg) {
+    let has_permissions = false;
+
+    try {
+        // get member info
+        const member = msg.channel.guild.members.cache.find(currentMember => currentMember.id === msg.author.id);
+
+        has_permissions = checkUserRole(member, msg);
+
+    } catch (e) {
+        Console.log(`Failed to check permissions.`)
+    }
+
+    return has_permissions;
+}
+
 client.on("message", async msg => {
+    try {
+        if (msg.content === "!clearConfig") {
+            msg.delete({timeout: 100});
 
-    if (msg.content === "!clearConfig") {
-        msg.delete({timeout: 100});
+            try {
+                if (userCanRunCommand(msg)) {
+                    let filename = `./` + msg.channel.guild.id + `.json`;
 
-        const member = msg.channel.guild.members.cache.find(currentMember => currentMember.id === msg.author.id);
-
-        if(!doesUserPermission(member, msg))
-            return;
-
-        let filename = `./` + msg.channel.guild.id + `.json`;
-
-        writeSavedSettings(filename, []);
-    }
-
-    if (msg.content === "!sync") {
-        msg.delete({timeout: 100});
-
-        const member = msg.channel.guild.members.cache.find(currentMember => currentMember.id === msg.author.id);
-
-        if(!doesUserPermission(member, msg))
-            return;
-
-        const raid_bot = msg.channel.client.users.cache.find(currentMember => currentMember.username === "Raid-Helper");
-
-        const event_message_ids = await userMessages(msg.channel.guild.id, raid_bot.id);
-
-        let filename = `./` + msg.channel.guild.id + `.json`;
-
-        writeSavedSettings(filename, event_message_ids);
-    }
-
-    if (msg.content === "!updateSheet") {
-        msg.delete({ timeout: 100 });
-
-        const member = msg.channel.guild.members.cache.find(currentMember => currentMember.id === msg.author.id);
-
-        if(!doesUserPermission(member, msg))
-            return;
-
-        let event_sheet;
-
-        try {
-            // replace with event tracking/searching - currently hardcoded to a specific message
-
-            let event_message_ids = getSavedSettings(msg.channel.guild.id);
-
-            for(let i = 0; i < event_message_ids.length; i++) {
-                const event_message = await client.channels.cache.get(event_message_ids[i][0]).messages.fetch(event_message_ids[i][1]);
-
-                if(event_message != null && event_message.author.username === "Raid-Helper") {
-
-                    if(event_message.embeds.length <= 0 || event_message.embeds[0].fields.length<= 0)
-                    {
-                        throw "Message doesn't have embeds.";
-                    }
-
-                    const event_title = getEventTitle(event_message);
-
-                    const date_text = getEventDate(event_message);
-
-                    const sheet_name = date_text + ` | ` + event_title;
-
-                    event_sheet = await checkEventSheetExists(sheet_name);
-
-                    if(event_sheet == null)
-                    {
-                        event_sheet = await createEventSheet(sheet_name);
-                    }
-
-                    console.log(`Sheet name: ${sheet_name}`);
-
-                    let raid_helper_reactions = await getEventReactions(event_message);
-
-                    console.log("Roles:");
-                    console.log(raid_helper_reactions);
-
-                    let {role_sign_up_data, sign_up_order} = getEventData(event_message, raid_helper_reactions);
-
-                    if (event_sheet != null) {
-                        await updateEventSheet(event_sheet, sign_up_order, raid_helper_reactions, role_sign_up_data);
-                    }
+                    writeSavedSettings(filename, []);
                 }
+            } catch (e) {
+                console.log("Failed to clear config file.")
             }
-        } catch (error) {
-            console.log(`failed to count roles: ${error}`);
         }
+
+        if (msg.content === "!sync") {
+            msg.delete({timeout: 100});
+            
+            try {
+                if (userCanRunCommand(msg)) {
+                    const raid_bot = msg.channel.client.users.cache.find(currentMember => currentMember.username === "Raid-Helper");
+
+                    const event_message_ids = await userMessages(msg.channel.guild.id, raid_bot.id);
+
+                    let filename = `./` + msg.channel.guild.id + `.json`;
+
+                    writeSavedSettings(filename, event_message_ids);
+                }
+            } catch (e) {
+                console.log("Failed to sync message & channel IDs.")
+            }
+        }
+
+        if (msg.content === "!updateSheet") {
+            msg.delete({timeout: 100});
+
+            try {
+                if (userCanRunCommand(msg)) {
+                    await extractInfoAndUpdateSheet(msg);
+                }
+            } catch (e) {
+                console.log("Failed to update spreadsheet.")
+            }
+        }
+    } catch (e) {
+        console.log(`Failed to process message.`);
     }
 })
 
