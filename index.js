@@ -373,25 +373,32 @@ async function userMessages(guildID, userID){
 
     for(let i = 0; i < channels.length; i++) {
         if (channels[i].type === 'text') {
-            const messages = await channels[i].messages.fetch();
 
-            const filtered_messages = messages.filter(m => m.author.id === userID).array();
+            try {
+                const messages = await channels[i].messages.fetch();
 
-            for(let j = 0; j < filtered_messages.length; j++) {
-                if(filtered_messages[j].embeds.length > 0) {
+                const filtered_messages = messages.filter(m => m.author.id === userID).array();
 
-                    const title_regex = /\*{2}(.*?)\*{2}/gm; // everything between **<find stuff here>**
+                for(let j = 0; j < filtered_messages.length; j++) {
+                    if(filtered_messages[j].embeds.length > 0) {
 
-                    const title_match = regexFirstMatch(title_regex, filtered_messages[j].embeds[0].fields[1].value); // null if nothing found
+                        const title_regex = /\*{2}(.*?)\*{2}/gm; // everything between **<find stuff here>**
 
-                    if(title_match != null && title_match === "Info:") {
-                        console.log(`Event found: ${filtered_messages[j].id}`)
-                        let channel_and_message_ids = [];
-                        channel_and_message_ids.push(channels[i].id);
-                        channel_and_message_ids.push(filtered_messages[j].id);
-                        event_message_ids.push(channel_and_message_ids);
+                        const title_match = regexFirstMatch(title_regex, filtered_messages[j].embeds[0].fields[1].value); // null if nothing found
+
+                        if(title_match != null && title_match === "Info:") {
+                            // console.log(`Event found: ${filtered_messages[j].id}`)
+                            let channel_and_message_ids = [];
+                            channel_and_message_ids.push(channels[i].id);
+                            channel_and_message_ids.push(filtered_messages[j].id);
+                            event_message_ids.push(channel_and_message_ids);
+                        }
                     }
                 }
+
+            } catch (e) {
+                console.log("Could not grab message from channel, moving on.")
+                continue;
             }
         }
     }
@@ -401,7 +408,7 @@ async function userMessages(guildID, userID){
 }
 
 function doesUserPermission(member, msg) {
-    if (member.roles.cache.some(role => role.name === 'Admin') || role.name === 'Officer') {
+    if (member.roles.cache.some(role => role.name === 'Admin' || role.name === 'Officer')) {
         console.log(`${msg.author.username} has permission to run.`);
         return true;
     } else {
