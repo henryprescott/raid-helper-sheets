@@ -264,6 +264,50 @@ function getEventDate(event_message) {
     return date_text;
 }
 
+let roleMapping = {};
+
+// order in which they appear in event
+roleMapping["Tank"] = ["Tank", "Bear", "ProtPaladin"];
+roleMapping["Warrior"] = ["Warrior"];
+roleMapping["Rogue"] = ["Rogue"];
+roleMapping["Hunter"] = ["Hunter"];
+roleMapping["Mage"] = ["Mage"];
+roleMapping["Warlock"] = ["Warlock"];
+roleMapping["Druid"] = ["RestoDruid", "Balance", "Feral"];
+roleMapping["Shaman"] = ["Elemental", "Enhancer", "RestoShaman"];
+roleMapping["Priest"] = ["Priest", "Shadow"];
+roleMapping["Paladin"] = ["HolyPaladin", "Retri"];
+roleMapping["Late"] = ["Late"];
+roleMapping["Bench"] = ["Bench"];
+roleMapping["Tentative"] = ["Tentative"];
+roleMapping["Absence"] = ["Absence"];
+
+// [
+// 'Tank',        'Warrior',
+//     'Rogue',       'Hunter',
+//     'Mage',        'Warlock',
+//     'Priest',      'Shadow',
+//     'RestoShaman', 'Enhancer',
+//     'Elemental',   'RestoDruid',
+//     'Bear',        'Feral',
+//     'Balance',     'Late',
+//     'Bench',       'Tentative',
+//     'Absence'
+// ]
+
+// [
+// 'Tank',        'Warrior',
+//     'Rogue',       'Hunter',
+//     'Mage',        'Warlock',
+//     'Priest',      'Shadow',
+//     'HolyPaladin', 'Retri',
+//     'ProtPaladin', 'RestoDruid',
+//     'Bear',        'Feral',
+//     'Balance',     'Late',
+//     'Bench',       'Tentative',
+//     'Absence'
+// ]
+
 function getEventData(event_message, raid_helper_reactions) {
     // iterate through embed fields to extract role counts, order and populate above
     const embed_fields = event_message.embeds[0].fields;
@@ -273,14 +317,71 @@ function getEventData(event_message, raid_helper_reactions) {
     let role_sign_up_data = {};
     let sign_up_order = {};
 
-    for (let role in raid_helper_reactions) {
+    // for (let role in raid_helper_reactions) {
+    //
+    //     let field = embed_start_index; // trying to optimise loop, start from where we left off rather that scratch for each role
+    //
+    //     let role_data = [];
+    //
+    //     for (field in embed_fields) {
+    //         let role_name_regex = new RegExp(":(" + raid_helper_reactions[role] + "):", "gm");
+    //
+    //         // console.log(embed_fields[field].value)
+    //
+    //         if (role_name_regex.test(embed_fields[field].value)) { // current field contains a role we're looking for
+    //             let raw_role_data = embed_fields[field].value.split("\n"); // all entries are grouped together, so split them
+    //
+    //             // remove title as it just contains role name, no info we're interested in
+    //             raw_role_data.splice(0, 1);
+    //
+    //             for (let sign_up in raw_role_data) {
+    //                 const sign_up_order_regex = /\`{2}(.*?)\`{2}/gm; // everything between ``<find stuff here>``
+    //                 const username_regex = /\*{2}(.*?)\*{2}/gm; // everything between **<find stuff here>**
+    //
+    //                 const signup_order_match = regexFirstMatch(sign_up_order_regex, raw_role_data[sign_up]); // null if nothing found
+    //                 const signup_username_match = regexFirstMatch(username_regex, raw_role_data[sign_up]); // null if nothing found
+    //
+    //                 if (signup_order_match != null && signup_username_match != null) {
+    //                     let sign_up_info = [];
+    //                     sign_up_info.push(signup_username_match);
+    //                     sign_up_info.push(signup_order_match); // going to keep order just in case
+    //
+    //                     role_data.push(sign_up_info);
+    //
+    //                     // map sign up order to username
+    //                     sign_up_order[signup_order_match] = signup_username_match;
+    //                 }
+    //             }
+    //         } else {
+    //             role_sign_up_data[raid_helper_reactions[role]] = role_data;
+    //         }
+    //         embed_start_index++;
+    //     }
+    // }
+
+    // console.log(`RoleMapping: ${roleMapping}`);
+    //
+    // return;
+
+    embed_start_index = 0;
+
+    let role_and_class_data = [];
+
+    for (let role in roleMapping) {
 
         let field = embed_start_index; // trying to optimise loop, start from where we left off rather that scratch for each role
 
-        let role_data = [];
+        // let role_data = [];
+
+        let role_classes = {};
+
+        for (let wow_class in roleMapping[role]) {
+            role_classes[roleMapping[role][wow_class]] = [];
+            role_sign_up_data[roleMapping[role][wow_class]] = [];
+        }
 
         for (field in embed_fields) {
-            let role_name_regex = new RegExp(":(" + raid_helper_reactions[role] + "):", "gm");
+            let role_name_regex = new RegExp("__(" + role + ")__", "gm");
 
             // console.log(embed_fields[field].value)
 
@@ -291,27 +392,36 @@ function getEventData(event_message, raid_helper_reactions) {
                 raw_role_data.splice(0, 1);
 
                 for (let sign_up in raw_role_data) {
+                    const class_regex = /\:(.*?)\:/gm; // everything between :<find stuff here>:
                     const sign_up_order_regex = /\`{2}(.*?)\`{2}/gm; // everything between ``<find stuff here>``
                     const username_regex = /\*{2}(.*?)\*{2}/gm; // everything between **<find stuff here>**
 
+                    const class_match = regexFirstMatch(class_regex, raw_role_data[sign_up]); // null if nothing found
                     const signup_order_match = regexFirstMatch(sign_up_order_regex, raw_role_data[sign_up]); // null if nothing found
                     const signup_username_match = regexFirstMatch(username_regex, raw_role_data[sign_up]); // null if nothing found
 
-                    if (signup_order_match != null && signup_username_match != null) {
+                    if (class_match != null && signup_order_match != null && signup_username_match != null) {
                         let sign_up_info = [];
                         sign_up_info.push(signup_username_match);
                         sign_up_info.push(signup_order_match); // going to keep order just in case
 
-                        role_data.push(sign_up_info);
+                        role_classes[class_match].push(sign_up_info);
 
                         // map sign up order to username
                         sign_up_order[signup_order_match] = signup_username_match;
                     }
                 }
-            } else {
-                role_sign_up_data[raid_helper_reactions[role]] = role_data;
+
+                //role_sign_up_data[raid_helper_reactions[role]] = role_data;
+                role_and_class_data.push(role_classes);
             }
             embed_start_index++;
+        }
+    }
+
+    for(let role in role_and_class_data) {
+        for(let sub_role in role_and_class_data[role]) {
+            role_sign_up_data[sub_role] = role_and_class_data[role][sub_role];
         }
     }
 
