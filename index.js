@@ -42,7 +42,7 @@ async function getSpreadSheet(spreadsheetID) {
     return spreadsheet;
 }
 
-const range_of_cells_to_load = 'A1:K100';
+const range_of_cells_to_load = 'A1:Z100';
 
 async function checkEventSheetExists(sheetName) {
     try {
@@ -103,10 +103,13 @@ async function updateEventSheet(event_sheet, sign_up_order, raid_helper_reaction
     const order_spacer_cell = event_sheet.getCell(0, 1);
     order_spacer_cell.value = "";
 
-    const roles_title_cell = event_sheet.getCell(0, 2);
+    const empty_spacer_cell = event_sheet.getCell(0, 2);
+    empty_spacer_cell.value = "";
+
+    const roles_title_cell = event_sheet.getCell(0, 3);
     roles_title_cell.value = "Roles";
 
-    const roles_spacer_cell = event_sheet.getCell(0, 3);
+    const roles_spacer_cell = event_sheet.getCell(0, 4);
     roles_spacer_cell.value = "";
 
     for (let sign_up in sign_up_order) {
@@ -121,12 +124,12 @@ async function updateEventSheet(event_sheet, sign_up_order, raid_helper_reaction
     }
 
     for (let i = 0; i < raid_helper_reactions.length; i++) {
-        const role_title = event_sheet.getCell(i + 1, 2);
+        const role_title = event_sheet.getCell(1, i + 3);
         role_title.value = raid_helper_reactions[i];
         for (let j = 0; j < role_sign_up_data[raid_helper_reactions[i]].length; j++) {
             // console.log(`Cell: ${i}, ${j} - ${role_sign_up_data[raid_helper_reactions[i]][j]}`);
             if (event_sheet != null) {
-                const cell = event_sheet.getCell(i + 1, j + 3);
+                const cell = event_sheet.getCell(j + 2, i + 3);
                 cell.value = role_sign_up_data[raid_helper_reactions[i]][j][0];
             }
         }
@@ -338,14 +341,19 @@ function getEventData(event_message, raid_helper_reactions) {
                 let raw_role_data;
 
                 if(role === "Late" || role === "Bench" || role === "Tentative" || role === "Absence") {
-                    const partial_sign_up_regex = new RegExp("(:"+role+":.*?)\\n","gm"); // everything between :<find stuff here>:
+                    const partial_sign_up_regex = new RegExp("(:"+role+":.*?)","gm"); // everything between :<find stuff here>:
 
-                    let partial_sign_up_match = regexFirstMatch(partial_sign_up_regex, embed_fields[field].value); // null if nothing found
+                    raw_role_data = embed_fields[field].value.split("\n");
 
-                    if(partial_sign_up_match != null) {
-                        raw_role_data = embed_fields[field].value.split(","); // all entries are grouped together, so split them
-                    } else {
-                        continue;
+                    for(let lines in raw_role_data) {
+                        let partial_sign_up_match = regexFirstMatch(partial_sign_up_regex, raw_role_data[lines]); // null if nothing found
+
+                        if (partial_sign_up_match != null) {
+                            raw_role_data = raw_role_data[lines].split(","); // all entries are grouped together, so split them
+                            break;
+                        } else {
+                            continue;
+                        }
                     }
                 } else {
                     raw_role_data = embed_fields[field].value.split("\n"); // all entries are grouped together, so split them
@@ -538,7 +546,6 @@ function userCanRunCommand(msg) {
 
 client.on("message", async msg => {
     try {
-        return;
         if (msg.content === "!clearConfig") {
             msg.delete({timeout: 100});
 
