@@ -538,6 +538,7 @@ function userCanRunCommand(msg) {
 
 client.on("message", async msg => {
     try {
+        return;
         if (msg.content === "!clearConfig") {
             msg.delete({timeout: 100});
 
