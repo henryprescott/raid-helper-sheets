@@ -331,23 +331,41 @@ function getEventData(event_message, raid_helper_reactions) {
             let partial_role = new RegExp(":(" + role +"):", "gm"); // Late, Bench, Tentative & Absent are formatted differently
             let partial_empty = new RegExp(":(empty):", "gm"); // Late, Bench, Tentative & Absent are formatted differently
 
-            console.log(JSON.stringify(embed_fields[field].value))
+            // console.log(JSON.stringify(embed_fields[field].value))
 
             if (role_name_regex.test(embed_fields[field].value)
             || partial_empty.test(embed_fields[field].value) && partial_role.test(embed_fields[field].value)) { // current field contains a role we're looking for
-                let raw_role_data = embed_fields[field].value.split("\n"); // all entries are grouped together, so split them
+                let raw_role_data;
 
-                // remove title as it just contains role name, no info we're interested in
-                raw_role_data.splice(0, 1);
+                if(role === "Late" || role === "Bench" || role === "Tentative" || role === "Absence") {
+                    const partial_sign_up_regex = new RegExp("(:"+role+":.*?)\\n","gm"); // everything between :<find stuff here>:
+
+                    let partial_sign_up_match = regexFirstMatch(partial_sign_up_regex, embed_fields[field].value); // null if nothing found
+
+                    if(partial_sign_up_match != null) {
+                        raw_role_data = embed_fields[field].value.split(","); // all entries are grouped together, so split them
+                    } else {
+                        continue;
+                    }
+                } else {
+                    raw_role_data = embed_fields[field].value.split("\n"); // all entries are grouped together, so split them
+
+                    // remove title as it just contains role name, no info we're interested in
+                    raw_role_data.splice(0, 1);
+                }
 
                 for (let sign_up in raw_role_data) {
                     const class_regex = /\:(.*?)\:/gm; // everything between :<find stuff here>:
                     const sign_up_order_regex = /\`{2}(.*?)\`{2}/gm; // everything between ``<find stuff here>``
                     const username_regex = /\*{2}(.*?)\*{2}/gm; // everything between **<find stuff here>**
 
-                    const class_match = regexFirstMatch(class_regex, raw_role_data[sign_up]); // null if nothing found
+                    let class_match = regexFirstMatch(class_regex, raw_role_data[sign_up]); // null if nothing found
                     const signup_order_match = regexFirstMatch(sign_up_order_regex, raw_role_data[sign_up]); // null if nothing found
                     const signup_username_match = regexFirstMatch(username_regex, raw_role_data[sign_up]); // null if nothing found
+
+                    if(role === "Late" || role === "Bench" || role === "Tentative" || role === "Absence") {
+                        class_match = role;
+                    }
 
                     if (class_match != null && signup_order_match != null && signup_username_match != null) {
                         let sign_up_info = [];
