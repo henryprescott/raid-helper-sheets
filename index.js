@@ -121,44 +121,6 @@ async function updateEventSheet(event_sheet, sign_up_order, raid_helper_reaction
             // console.log(`sign_up: ${sign_up}`);
             const order_cell = event_sheet.getCell(sign_up, 0);
             order_cell.value = sign_up;
-            order_cell.textFormat = { bold: true };
-
-            if(sign_up === "Tank" || sign_up === "Warrior")
-            {
-                order_cell.backgroundColor("#C79C6E");
-            }
-            else if(sign_up === "Rogue")
-            {
-                order_cell.backgroundColor("#FFF569");
-            }
-            else if(sign_up === "Hunter")
-            {
-                order_cell.backgroundColor("#ABD473");
-            }
-            else if(sign_up === "Mage")
-            {
-                order_cell.backgroundColor("#69CCF0");
-            }
-            else if(sign_up === "Warlock")
-            {
-                order_cell.backgroundColor("#FFF569");
-            }
-            else if(sign_up === "Priest")
-            {
-                order_cell.backgroundColor("#ABD473");
-            }
-            else if(sign_up === "Shadow")
-            {
-                order_cell.backgroundColor("#69CCF0");
-            }
-            else if(sign_up === "RestoShaman" || sign_up === "Enhancer" || sign_up === "Elemental")
-            {
-                order_cell.backgroundColor("#C79C6E");
-            }
-            else if(sign_up === "RestoDruid" || sign_up === "Bear" || sign_up === "Feral" || sign_up === "Balance")
-            {
-                order_cell.backgroundColor("#C79C6E");
-            }
 
             const username_cell = event_sheet.getCell(sign_up, 1);
             username_cell.value = sign_up_order[sign_up];
@@ -168,6 +130,45 @@ async function updateEventSheet(event_sheet, sign_up_order, raid_helper_reaction
     for (let i = 0; i < raid_helper_reactions.length; i++) {
         const role_title = event_sheet.getCell(1, i + 3);
         role_title.value = raid_helper_reactions[i];
+        role_title.textFormat = { bold: true };
+
+        if(raid_helper_reactions[i] === "Tank" || raid_helper_reactions[i] === "Warrior")
+        {
+            role_title.backgroundColor("#C79C6E");
+        }
+        else if(raid_helper_reactions[i] === "Rogue")
+        {
+            role_title.backgroundColor("#FFF569");
+        }
+        else if(raid_helper_reactions[i] === "Hunter")
+        {
+            role_title.backgroundColor("#ABD473");
+        }
+        else if(raid_helper_reactions[i] === "Mage")
+        {
+            role_title.backgroundColor("#69CCF0");
+        }
+        else if(raid_helper_reactions[i] === "Warlock")
+        {
+            role_title.backgroundColor("#FFF569");
+        }
+        else if(raid_helper_reactions[i] === "Priest")
+        {
+            role_title.backgroundColor("#ABD473");
+        }
+        else if(raid_helper_reactions[i] === "Shadow")
+        {
+            role_title.backgroundColor("#69CCF0");
+        }
+        else if(raid_helper_reactions[i] === "RestoShaman" || raid_helper_reactions[i] === "Enhancer" || raid_helper_reactions[i] === "Elemental")
+        {
+            role_title.backgroundColor("#C79C6E");
+        }
+        else if(raid_helper_reactions[i] === "RestoDruid" || raid_helper_reactions[i] === "Bear" || raid_helper_reactions[i] === "Feral" || raid_helper_reactions[i] === "Balance")
+        {
+            role_title.backgroundColor("#C79C6E");
+        }
+
         for (let j = 0; j < role_sign_up_data[raid_helper_reactions[i]].length; j++) {
             // console.log(`Cell: ${i}, ${j} - ${role_sign_up_data[raid_helper_reactions[i]][j]}`);
             if (event_sheet != null) {
