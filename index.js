@@ -99,6 +99,7 @@ async function createEventSheet(sheetName) {
 async function updateEventSheet(event_sheet, sign_up_order, raid_helper_reactions, role_sign_up_data) {
     const order_title_cell = event_sheet.getCell(0, 0);
     order_title_cell.value = "Sign Up Order";
+    order_title_cell.textFormat = { bold: true };
 
     const order_spacer_cell = event_sheet.getCell(0, 1);
     order_spacer_cell.value = "";
@@ -108,15 +109,56 @@ async function updateEventSheet(event_sheet, sign_up_order, raid_helper_reaction
 
     const roles_title_cell = event_sheet.getCell(0, 3);
     roles_title_cell.value = "Roles";
+    roles_title_cell.textFormat = { bold: true };
+
 
     const roles_spacer_cell = event_sheet.getCell(0, 4);
     roles_spacer_cell.value = "";
+
 
     for (let sign_up in sign_up_order) {
         if (event_sheet != null) {
             // console.log(`sign_up: ${sign_up}`);
             const order_cell = event_sheet.getCell(sign_up, 0);
             order_cell.value = sign_up;
+            order_cell.textFormat = { bold: true };
+
+            if(sign_up === "Tank" || sign_up === "Warrior")
+            {
+                order_cell.backgroundColor("#C79C6E");
+            }
+            else if(sign_up === "Rogue")
+            {
+                order_cell.backgroundColor("#FFF569");
+            }
+            else if(sign_up === "Hunter")
+            {
+                order_cell.backgroundColor("#ABD473");
+            }
+            else if(sign_up === "Mage")
+            {
+                order_cell.backgroundColor("#69CCF0");
+            }
+            else if(sign_up === "Warlock")
+            {
+                order_cell.backgroundColor("#FFF569");
+            }
+            else if(sign_up === "Priest")
+            {
+                order_cell.backgroundColor("#ABD473");
+            }
+            else if(sign_up === "Shadow")
+            {
+                order_cell.backgroundColor("#69CCF0");
+            }
+            else if(sign_up === "RestoShaman" || sign_up === "Enhancer" || sign_up === "Elemental")
+            {
+                order_cell.backgroundColor("#C79C6E");
+            }
+            else if(sign_up === "RestoDruid" || sign_up === "Bear" || sign_up === "Feral" || sign_up === "Balance")
+            {
+                order_cell.backgroundColor("#C79C6E");
+            }
 
             const username_cell = event_sheet.getCell(sign_up, 1);
             username_cell.value = sign_up_order[sign_up];
@@ -595,7 +637,9 @@ client.on("message", async msg => {
 })
 
 try {
-    client.login(process.env.DISCORD_BOT_TOKEN)
+    client.login(process.env.DISCORD_BOT_TOKEN);
+
+
 } catch (e) {
     console.log("Bot failed to login to discord.");
 }
