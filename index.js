@@ -132,41 +132,88 @@ async function updateEventSheet(event_sheet, sign_up_order, raid_helper_reaction
         role_title.value = raid_helper_reactions[i];
         role_title.textFormat = { bold: true };
 
-        if(raid_helper_reactions[i] === "Tank" || raid_helper_reactions[i] === "Warrior")
+        //console.log(`Colour: ${role_title}`);
+
+        if(raid_helper_reactions[i] === "Tank" || raid_helper_reactions[i] === "Warrior") // #C79C6E
         {
-            role_title.backgroundColor("#C79C6E");
+            role_title.backgroundColor = {
+                "red": 0.78,
+                "green": 0.612,
+                "blue": 0.431,
+                "alpha": 1.0
+            };
         }
-        else if(raid_helper_reactions[i] === "Rogue")
+        else if(raid_helper_reactions[i] === "Rogue") // #FFF569
         {
-            role_title.backgroundColor("#FFF569");
+            role_title.backgroundColor = {
+                "red": 1.0,
+                "green": 0.961,
+                "blue": 0.412,
+                "alpha": 1.0
+            };
         }
-        else if(raid_helper_reactions[i] === "Hunter")
+        else if(raid_helper_reactions[i] === "Hunter") // #ABD473
         {
-            role_title.backgroundColor("#ABD473");
+            role_title.backgroundColor = {
+                "red": 0.671,
+                "green": 0.831,
+                "blue": 0.451,
+                "alpha": 1.0
+            };
         }
-        else if(raid_helper_reactions[i] === "Mage")
+        else if(raid_helper_reactions[i] === "Mage") // #69CCF0
         {
-            role_title.backgroundColor("#69CCF0");
+            role_title.backgroundColor = {
+                "red": 0.412,
+                "green": 0.8,
+                "blue": 0.941,
+                "alpha": 1.0
+            };
         }
-        else if(raid_helper_reactions[i] === "Warlock")
+        else if(raid_helper_reactions[i] === "Warlock") // #9482C9
         {
-            role_title.backgroundColor("#FFF569");
+            role_title.backgroundColor = {
+                "red": 0.58,
+                "green": 0.51,
+                "blue": 0.788,
+                "alpha": 1.0
+            };
         }
-        else if(raid_helper_reactions[i] === "Priest")
+        else if(raid_helper_reactions[i] === "Priest") // #FFFFFF
         {
-            role_title.backgroundColor("#ABD473");
+            role_title.backgroundColor = {
+                "red": 1.0,
+                "green": 1.0,
+                "blue": 1.0,
+                "alpha": 1.0
+            };
         }
-        else if(raid_helper_reactions[i] === "Shadow")
+        else if(raid_helper_reactions[i] === "Shadow") // #FFFFFF
         {
-            role_title.backgroundColor("#69CCF0");
+            role_title.backgroundColor = {
+                "red": 1.0,
+                "green": 1.0,
+                "blue": 1.0,
+                "alpha": 1.0
+            };
         }
-        else if(raid_helper_reactions[i] === "RestoShaman" || raid_helper_reactions[i] === "Enhancer" || raid_helper_reactions[i] === "Elemental")
+        else if(raid_helper_reactions[i] === "RestoShaman" || raid_helper_reactions[i] === "Enhancer" || raid_helper_reactions[i] === "Elemental") // #0070DE
         {
-            role_title.backgroundColor("#C79C6E");
+            role_title.backgroundColor = {
+                "red": 0.0,
+                "green": 0.439,
+                "blue": 0.871,
+                "alpha": 1.0
+            };
         }
-        else if(raid_helper_reactions[i] === "RestoDruid" || raid_helper_reactions[i] === "Bear" || raid_helper_reactions[i] === "Feral" || raid_helper_reactions[i] === "Balance")
+        else if(raid_helper_reactions[i] === "RestoDruid" || raid_helper_reactions[i] === "Bear" || raid_helper_reactions[i] === "Feral" || raid_helper_reactions[i] === "Balance") // #FF7D0A
         {
-            role_title.backgroundColor("#C79C6E");
+            role_title.backgroundColor = {
+                "red": 1.0,
+                "green": 0.49,
+                "blue": 0.039,
+                "alpha": 1.0
+            };
         }
 
         for (let j = 0; j < role_sign_up_data[raid_helper_reactions[i]].length; j++) {
