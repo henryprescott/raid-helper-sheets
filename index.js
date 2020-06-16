@@ -123,7 +123,125 @@ async function updateEventSheet(event_sheet, sign_up_order, raid_helper_reaction
             order_cell.value = sign_up;
 
             const username_cell = event_sheet.getCell(sign_up, 1);
-            username_cell.value = sign_up_order[sign_up];
+            username_cell.value = sign_up_order[sign_up][0];
+
+            if(sign_up_order[sign_up][1] === "Tank" || sign_up_order[sign_up][1] === "Warrior") // #C79C6E
+            {
+                username_cell.backgroundColor = {
+                    "red": 0.898,
+                    "green": 0.823,
+                    "blue": 0.741,
+                    "alpha": 1.0
+                };
+            }
+            else if(sign_up_order[sign_up][1] === "Rogue") // #FFF569
+            {
+                username_cell.backgroundColor = {
+                    "red": 1.0,
+                    "green": 0.988,
+                    "blue": 0.8,
+                    "alpha": 1.0
+                };
+            }
+            else if(sign_up_order[sign_up][1] === "Hunter") // #ABD473
+            {
+                username_cell.backgroundColor = {
+                    "red": 0.870,
+                    "green": 0.933,
+                    "blue": 0.788,
+                    "alpha": 1.0
+                };
+            }
+            else if(sign_up_order[sign_up][1] === "Mage") // #69CCF0
+            {
+                username_cell.backgroundColor = {
+                    "red": 0.780,
+                    "green": 0.925,
+                    "blue": 0.980,
+                    "alpha": 1.0
+                };
+            }
+            else if(sign_up_order[sign_up][1] === "Warlock") // #9482C9
+            {
+                username_cell.backgroundColor = {
+                    "red": 0.831,
+                    "green": 0.803,
+                    "blue": 0.913,
+                    "alpha": 1.0
+                };
+            }
+            else if(sign_up_order[sign_up][1] === "Priest") // #FFFFFF
+            {
+                username_cell.backgroundColor = {
+                    "red": 1.0,
+                    "green": 1.0,
+                    "blue": 1.0,
+                    "alpha": 1.0
+                };
+            }
+            else if(sign_up_order[sign_up][1] === "Shadow") // #FFFFFF
+            {
+                username_cell.backgroundColor = {
+                    "red": 1.0,
+                    "green": 1.0,
+                    "blue": 1.0,
+                    "alpha": 1.0
+                };
+            }
+            else if(sign_up_order[sign_up][1] === "RestoShaman" || sign_up_order[sign_up][1] === "Enhancer" || sign_up_order[sign_up][1] === "Elemental") // #0070DE
+            {
+                username_cell.backgroundColor = {
+                    "red": 0.701,
+                    "green": 0.850,
+                    "blue": 1.0,
+                    "alpha": 1.0
+                };
+            }
+            else if(sign_up_order[sign_up][1] === "RestoDruid" || sign_up_order[sign_up][1] === "Bear" || sign_up_order[sign_up][1] === "Feral" || sign_up_order[sign_up][1] === "Balance") // #FF7D0A
+            {
+                username_cell.backgroundColor = {
+                    "red": 1.0,
+                    "green": 0.862,
+                    "blue": 0.741,
+                    "alpha": 1.0
+                };
+            }
+            else if(sign_up_order[sign_up][1] === "Late") // #F58CBA
+            {
+                username_cell.backgroundColor = {
+                    "red": 0.984,
+                    "green": 0.796,
+                    "blue": 0.878,
+                    "alpha": 1.0
+                };
+            }
+            else if(sign_up_order[sign_up][1] === "Bench") // #A330C9
+            {
+                username_cell.backgroundColor = {
+                    "red": 0.898,
+                    "green": 0.756,
+                    "blue": 0.941,
+                    "alpha": 1.0
+                };
+            }
+            else if(sign_up_order[sign_up][1] === "Tentative") // #00FF96
+            {
+                username_cell.backgroundColor = {
+                    "red": 0.741,
+                    "green": 1.0,
+                    "blue": 0.894,
+                    "alpha": 1.0
+                };
+            }
+            else if(sign_up_order[sign_up][1] === "Absence") // #C41F3B
+            {
+                username_cell.backgroundColor = {
+                    "red": 0.921,
+                    "green": 0.458,
+                    "blue": 0.537,
+                    "alpha": 1.0
+                };
+            }
         }
     }
 
@@ -215,12 +333,166 @@ async function updateEventSheet(event_sheet, sign_up_order, raid_helper_reaction
                 "alpha": 1.0
             };
         }
+        else if(raid_helper_reactions[i] === "Late") // #F58CBA
+        {
+            role_title.backgroundColor = {
+                "red": 0.960,
+                "green": 0.549,
+                "blue": 0.729,
+                "alpha": 1.0
+            };
+        }
+        else if(raid_helper_reactions[i] === "Bench") // #A330C9
+        {
+            role_title.backgroundColor = {
+                "red": 0.639,
+                "green": 0.188,
+                "blue": 0.788,
+                "alpha": 1.0
+            };
+        }
+        else if(raid_helper_reactions[i] === "Tentative") // #00FF96
+        {
+            role_title.backgroundColor = {
+                "red": 0.0,
+                "green": 1.0,
+                "blue": 0.588,
+                "alpha": 1.0
+            };
+        }
+        else if(raid_helper_reactions[i] === "Absence") // #C41F3B
+        {
+            role_title.backgroundColor = {
+                "red": 0.768,
+                "green": 0.768,
+                "blue": 0.121,
+                "alpha": 1.0
+            };
+        }
 
         for (let j = 0; j < role_sign_up_data[raid_helper_reactions[i]].length; j++) {
             // console.log(`Cell: ${i}, ${j} - ${role_sign_up_data[raid_helper_reactions[i]][j]}`);
             if (event_sheet != null) {
                 const cell = event_sheet.getCell(j + 2, i + 3);
                 cell.value = role_sign_up_data[raid_helper_reactions[i]][j][0];
+
+                if(raid_helper_reactions[i] === "Tank" || raid_helper_reactions[i] === "Warrior") // #C79C6E
+                {
+                    cell.backgroundColor = {
+                        "red": 0.898,
+                        "green": 0.823,
+                        "blue": 0.741,
+                        "alpha": 1.0
+                    };
+                }
+                else if(raid_helper_reactions[i] === "Rogue") // #FFF569
+                {
+                    cell.backgroundColor = {
+                        "red": 1.0,
+                        "green": 0.988,
+                        "blue": 0.8,
+                        "alpha": 1.0
+                    };
+                }
+                else if(raid_helper_reactions[i] === "Hunter") // #ABD473
+                {
+                    cell.backgroundColor = {
+                        "red": 0.870,
+                        "green": 0.933,
+                        "blue": 0.788,
+                        "alpha": 1.0
+                    };
+                }
+                else if(raid_helper_reactions[i] === "Mage") // #69CCF0
+                {
+                    cell.backgroundColor = {
+                        "red": 0.780,
+                        "green": 0.925,
+                        "blue": 0.980,
+                        "alpha": 1.0
+                    };
+                }
+                else if(raid_helper_reactions[i] === "Warlock") // #9482C9
+                {
+                    cell.backgroundColor = {
+                        "red": 0.831,
+                        "green": 0.803,
+                        "blue": 0.913,
+                        "alpha": 1.0
+                    };
+                }
+                else if(raid_helper_reactions[i] === "Priest") // #FFFFFF
+                {
+                    cell.backgroundColor = {
+                        "red": 1.0,
+                        "green": 1.0,
+                        "blue": 1.0,
+                        "alpha": 1.0
+                    };
+                }
+                else if(raid_helper_reactions[i] === "Shadow") // #FFFFFF
+                {
+                    cell.backgroundColor = {
+                        "red": 1.0,
+                        "green": 1.0,
+                        "blue": 1.0,
+                        "alpha": 1.0
+                    };
+                }
+                else if(raid_helper_reactions[i] === "RestoShaman" || raid_helper_reactions[i] === "Enhancer" || raid_helper_reactions[i] === "Elemental") // #0070DE
+                {
+                    cell.backgroundColor = {
+                        "red": 0.701,
+                        "green": 0.850,
+                        "blue": 1.0,
+                        "alpha": 1.0
+                    };
+                }
+                else if(raid_helper_reactions[i] === "RestoDruid" || raid_helper_reactions[i] === "Bear" || raid_helper_reactions[i] === "Feral" || raid_helper_reactions[i] === "Balance") // #FF7D0A
+                {
+                    cell.backgroundColor = {
+                        "red": 1.0,
+                        "green": 0.862,
+                        "blue": 0.741,
+                        "alpha": 1.0
+                    };
+                }
+                else if(raid_helper_reactions[i] === "Late") // #F58CBA
+                {
+                    cell.backgroundColor = {
+                        "red": 0.984,
+                        "green": 0.796,
+                        "blue": 0.878,
+                        "alpha": 1.0
+                    };
+                }
+                else if(raid_helper_reactions[i] === "Bench") // #A330C9
+                {
+                    cell.backgroundColor = {
+                        "red": 0.898,
+                        "green": 0.756,
+                        "blue": 0.941,
+                        "alpha": 1.0
+                    };
+                }
+                else if(raid_helper_reactions[i] === "Tentative") // #00FF96
+                {
+                    cell.backgroundColor = {
+                        "red": 0.741,
+                        "green": 1.0,
+                        "blue": 0.894,
+                        "alpha": 1.0
+                    };
+                }
+                else if(raid_helper_reactions[i] === "Absence") // #C41F3B
+                {
+                    cell.backgroundColor = {
+                        "red": 0.921,
+                        "green": 0.458,
+                        "blue": 0.537,
+                        "alpha": 1.0
+                    };
+                }
             }
         }
     }
@@ -472,8 +744,13 @@ function getEventData(event_message, raid_helper_reactions) {
 
                         role_classes[class_match].push(sign_up_info);
 
+                        let name_and_role = [];
+
+                        name_and_role.push(signup_username_match);
+                        name_and_role.push(class_match);
+
                         // map sign up order to username
-                        sign_up_order[signup_order_match] = signup_username_match;
+                        sign_up_order[signup_order_match] = name_and_role;
                     }
                 }
 
@@ -490,8 +767,8 @@ function getEventData(event_message, raid_helper_reactions) {
 
     // console.log("Sign up data:");
     // console.log(role_sign_up_data);
-    // console.log("Sign up order:");
-    // console.log(sign_up_order);
+    console.log("Sign up order:");
+    console.log(sign_up_order);
     return {role_sign_up_data, sign_up_order};
 }
 
