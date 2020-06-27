@@ -6,6 +6,7 @@ const fs = require('fs')
 
 const { GoogleSpreadsheet } = require('google-spreadsheet');
 
+var schedule = require('node-schedule');
 const Discord = require("discord.js")
 const client = new Discord.Client({ partials: ['MESSAGE', 'CHANNEL', 'REACTION'] })
 
@@ -840,9 +841,9 @@ async function userMessages(guildID, userID){
     }
 }
 
-async function extractInfoAndUpdateSheet(msg) {
+async function extractInfoAndUpdateSheet(guildID) {
     try {
-        let event_message_ids = getSavedSettings(msg.channel.guild.id);
+        let event_message_ids = getSavedSettings(guildID);
 
         for (let i = 0; i < event_message_ids.length; i++) {
             const event_message = await client.channels.cache.get(event_message_ids[i][0]).messages.fetch(event_message_ids[i][1]);
@@ -911,6 +912,22 @@ function userCanRunCommand(msg) {
     return has_permissions;
 }
 
+async function autoTask() {
+    const raid_bot = client.users.cache.find(currentMember => currentMember.username === "Raid-Helper");
+
+    const guilds = client.guilds.cache.array();
+
+    for( let i = 0; i < guilds.length; i++) {
+        const event_message_ids = await userMessages(guilds[i].id, raid_bot.id);
+
+        let filename = `./` + guilds[i].id + `.json`;
+
+        writeSavedSettings(filename, event_message_ids);
+
+        await extractInfoAndUpdateSheet(guilds[i].id);
+    }
+}
+
 client.on("message", async msg => {
     try {
         if (msg.content === "!clearConfig") {
@@ -924,6 +941,18 @@ client.on("message", async msg => {
                 }
             } catch (e) {
                 console.log("Failed to clear config file.")
+            }
+        }
+
+        if (msg.content === "!test") {
+            msg.delete({timeout: 100});
+
+            try {
+                if (userCanRunCommand(msg)) {
+                    await autoTask();
+                }
+            } catch (e) {
+                console.log("Failed to auto run.")
             }
         }
 
@@ -950,12 +979,12 @@ client.on("message", async msg => {
 
             try {
                 if (userCanRunCommand(msg)) {
-                    await extractInfoAndUpdateSheet(msg);
+                    await extractInfoAndUpdateSheet(msg.channel.guild.id);
                 }
             } catch (e) {
                 console.log("Failed to update spreadsheet.")
             }
-        }
+        }1
     } catch (e) {
         console.log(`Failed to process message.`);
     }
@@ -963,10 +992,17 @@ client.on("message", async msg => {
 
 try {
     client.login(process.env.DISCORD_BOT_TOKEN);
-
-
 } catch (e) {
     console.log("Bot failed to login to discord.");
 }
 
+schedule.scheduleJob('* 1 * * *', async function(){  // this for one hour
+    try {
+        await autoTask();
+
+        console.log('Scheduled task run.');
+    } catch (e) {
+        console.log("Failed to auto run.")
+    }
+});
 
