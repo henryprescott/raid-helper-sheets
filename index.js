@@ -697,10 +697,11 @@ function getEventData(event_message, raid_helper_reactions) {
             let partial_role = new RegExp(":(" + role +"):", "gm"); // Late, Bench, Tentative & Absent are formatted differently
             let partial_empty = new RegExp(":(empty):", "gm"); // Late, Bench, Tentative & Absent are formatted differently
 
-            // console.log(JSON.stringify(embed_fields[field].value))
+            let found_role_in_line = role_name_regex.test(embed_fields[field].value);
+            let found_partial_role = partial_role.test(embed_fields[field].value);
 
-            if (role_name_regex.test(embed_fields[field].value)
-            || partial_empty.test(embed_fields[field].value) && partial_role.test(embed_fields[field].value)) { // current field contains a role we're looking for
+            // used to also check for empty rows, but format changed, so adjust below to accomodate that.
+            if ( found_role_in_line || found_partial_role) { // current field contains a role we're looking for
                 let raw_role_data;
 
                 if(role === "Late" || role === "Bench" || role === "Tentative" || role === "Absence") {
