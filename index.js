@@ -699,12 +699,13 @@ function getEventData(event_message, raid_helper_reactions) {
 
             let found_role_in_line = role_name_regex.test(embed_fields[field].value);
             let found_partial_role = partial_role.test(embed_fields[field].value);
+            let looking_for_partial_role = role === "Late" || role === "Bench" || role === "Tentative" || role === "Absence";
 
             // used to also check for empty rows, but format changed, so adjust below to accomodate that.
-            if ( found_role_in_line || found_partial_role) { // current field contains a role we're looking for
+            if ( found_role_in_line || (found_partial_role && looking_for_partial_role)) { // current field contains a role we're looking for
                 let raw_role_data;
 
-                if(role === "Late" || role === "Bench" || role === "Tentative" || role === "Absence") {
+                if(looking_for_partial_role) {
                     const partial_sign_up_regex = new RegExp("(:"+role+":.*?)","gm"); // everything between :<find stuff here>:
 
                     raw_role_data = embed_fields[field].value.split("\n");
