@@ -503,7 +503,7 @@ async function updateEventSheet(event_sheet, sign_up_order, raid_helper_reaction
 
 /* Saved settings */
 
-function writeSavedSettings(filename, message_ids) {
+async function writeSavedSettings(filename, message_ids) {
 
     const jsonContent = JSON.stringify(message_ids);
 
@@ -914,6 +914,14 @@ function userCanRunCommand(msg) {
     return has_permissions;
 }
 
+function promiseWaiting() {
+    return new Promise(resolve => {
+        setTimeout(() => {
+            resolve('done.');
+        }, 4000);
+    });
+}
+
 async function autoTask() {
     const raid_bot = client.users.cache.find(currentMember => currentMember.username === "Raid-Helper");
 
@@ -924,7 +932,9 @@ async function autoTask() {
 
         let filename = `./` + guilds[i].id + `.json`;
 
-        writeSavedSettings(filename, event_message_ids);
+        await writeSavedSettings(filename, event_message_ids);
+
+        await promiseWaiting();
 
         await extractInfoAndUpdateSheet(guilds[i].id);
     }
@@ -939,7 +949,7 @@ client.on("message", async msg => {
                 if (userCanRunCommand(msg)) {
                     let filename = `./` + msg.channel.guild.id + `.json`;
 
-                    writeSavedSettings(filename, []);
+                    await writeSavedSettings(filename, []);
                 }
             } catch (e) {
                 console.log("Failed to clear config file.")
@@ -969,7 +979,7 @@ client.on("message", async msg => {
 
                     let filename = `./` + msg.channel.guild.id + `.json`;
 
-                    writeSavedSettings(filename, event_message_ids);
+                    await writeSavedSettings(filename, event_message_ids);
                 }
             } catch (e) {
                 console.log("Failed to sync message & channel IDs.")
