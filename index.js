@@ -923,6 +923,7 @@ function promiseWaiting() {
 }
 
 async function autoTask() {
+    console.log('Running auto task.');
     const raid_bot = client.users.cache.find(currentMember => currentMember.username === "Raid-Helper");
 
     const guilds = client.guilds.cache.array();
