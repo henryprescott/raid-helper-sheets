@@ -73,7 +73,7 @@ async function checkEventSheetExists(sheetName) {
     return null;
 }
 
-async function createEventSheet(sheetName) {
+async function createEventSheet(sheetName, showLogging) {
     try {
         const spreadsheet = await getSpreadSheet(process.env.GOOGLE_SPREADSHEET_ID);
 
@@ -84,7 +84,8 @@ async function createEventSheet(sheetName) {
 
             await new_sheet.loadCells(range_of_cells_to_load); // TODO this may need tweaking WARNING!
 
-            console.log(`Created new sheet: ${sheetName}.`);
+            if(showLogging)
+                console.log(`Created new sheet: ${sheetName}.`);
 
             return new_sheet;
         } catch (e) {
@@ -503,7 +504,7 @@ async function updateEventSheet(event_sheet, sign_up_order, raid_helper_reaction
 
 /* Saved settings */
 
-async function writeSavedSettings(filename, message_ids) {
+async function writeSavedSettings(filename, message_ids, showLogging) {
 
     const jsonContent = JSON.stringify(message_ids);
 
@@ -511,8 +512,8 @@ async function writeSavedSettings(filename, message_ids) {
         if (err) {
             console.log(`Failed to save settings to ${filename}`);
         }
-
-        console.log(`Settings saved to ${filename}: ${jsonContent}`);
+        if(showLogging)
+            console.log(`Settings saved to ${filename}: ${jsonContent}`);
     });
 }
 
@@ -571,7 +572,7 @@ function regexFirstMatch(regular_expression, content) {
 
 /* functions pulling details out of raid-helper events*/
 
-function getEventTitle(eventMessage) {
+function getEventTitle(eventMessage, showLogging) {
     const titleField = eventMessage.embeds[0].fields[0];
 
     // console.log(`Title: ${titleField.value}`);
@@ -612,21 +613,25 @@ function getEventTitle(eventMessage) {
         title_text = title_match;
     }
 
-    // console.log(`Title: ${title_text}`);
+    if(showLogging)
+        console.log(`Title: ${title_text}`);
 
     return title_text;
 }
 
-function getEventDate(event_message) {
+function getEventDate(event_message, showLogging) {
     const date_field = event_message.embeds[0].fields[3]; // assuming date is always at this index (might be dumb)
 
-    console.log(`Date: ${date_field.value}`);
+    if(showLogging)
+        console.log(`Date: ${date_field.value}`);
 
     const date_text_regex = /\*{2}\[(.*?)\]/gm; // everything between `**[<find stuff here>]`
 
     const date_text = regexFirstMatch(date_text_regex, date_field.value); // length 0 if nothing found
 
-    console.log(`Date Text: ${date_text}`);
+    if(showLogging)
+        console.log(`Date Text: ${date_text}`);
+
     return date_text;
 }
 
@@ -674,7 +679,7 @@ roleMapping["Absence"] = ["Absence"];
 //     'Absence'
 // ]
 
-function getEventData(event_message, raid_helper_reactions) {
+function getEventData(event_message, raid_helper_reactions, showLogging) {
     // iterate through embed fields to extract role counts, order and populate above
     const embed_fields = event_message.embeds[0].fields;
 
@@ -768,10 +773,12 @@ function getEventData(event_message, raid_helper_reactions) {
         }
     }
 
-    // console.log("Sign up data:");
-    // console.log(role_sign_up_data);
-    console.log("Sign up order:");
-    console.log(sign_up_order);
+    if(showLogging) {
+        // console.log("Sign up data:");
+        // console.log(role_sign_up_data);
+        console.log("Sign up order:");
+        console.log(sign_up_order);
+    }
     return {role_sign_up_data, sign_up_order};
 }
 
@@ -798,7 +805,7 @@ async function getEventReactions(event_message) {
 /* Discord JS specific code */
 
 /* pulled from https://stackoverflow.com/questions/60609287/discord-js-get-a-list-of-all-users-sent-messages */
-async function userMessages(guildID, userID){
+async function userMessages(guildID, userID, showLogging){
     try {
         let event_message_ids = [];
 
@@ -830,12 +837,15 @@ async function userMessages(guildID, userID){
                         }
                 }
             } catch (e) {
-                console.log("Could not grab message from channel, moving on.")
+                if(showLogging)
+                    console.log("Could not grab message from " + channels[i].name + ", moving on.")
                 continue;
             }
         }
 
-        console.log(`Event message ids: ${event_message_ids}`)
+        if(showLogging)
+            console.log(`Event message ids: ${event_message_ids}`)
+
         return event_message_ids;
     } catch (e) {
         console.log(`Failed to get channels available.`)
@@ -843,7 +853,7 @@ async function userMessages(guildID, userID){
     }
 }
 
-async function extractInfoAndUpdateSheet(guildID) {
+async function extractInfoAndUpdateSheet(guildID, showLogging) {
     try {
         let event_message_ids = getSavedSettings(guildID);
 
@@ -856,26 +866,29 @@ async function extractInfoAndUpdateSheet(guildID) {
                     throw "Message doesn't have embeds.";
                 }
 
-                const event_title = getEventTitle(event_message);
+                const event_title = getEventTitle(event_message, showLogging);
 
-                const date_text = getEventDate(event_message);
+                const date_text = getEventDate(event_message, showLogging);
 
                 const sheet_name = date_text + ` | ` + event_title;
 
                 let event_sheet = await checkEventSheetExists(sheet_name);
 
                 if (event_sheet == null) {
-                    event_sheet = await createEventSheet(sheet_name);
+                    event_sheet = await createEventSheet(sheet_name, showLogging);
                 }
 
-                console.log(`Sheet name: ${sheet_name}`);
+                if(showLogging)
+                    console.log(`Sheet name: ${sheet_name}`);
 
                 let raid_helper_reactions = await getEventReactions(event_message);
 
-                console.log("Roles:");
-                console.log(raid_helper_reactions);
+                if(showLogging) {
+                    console.log("Roles:");
+                    console.log(raid_helper_reactions);
+                }
 
-                let {role_sign_up_data, sign_up_order} = getEventData(event_message, raid_helper_reactions);
+                let {role_sign_up_data, sign_up_order} = getEventData(event_message, raid_helper_reactions, showLogging);
 
                 if (event_sheet != null) {
                     await updateEventSheet(event_sheet, sign_up_order, raid_helper_reactions, role_sign_up_data);
@@ -923,13 +936,12 @@ function promiseWaiting() {
 }
 
 async function autoTask() {
-    console.log('Running auto task.');
     const raid_bot = client.users.cache.find(currentMember => currentMember.username === "Raid-Helper");
 
     const guilds = client.guilds.cache.array();
 
     for( let i = 0; i < guilds.length; i++) {
-        const event_message_ids = await userMessages(guilds[i].id, raid_bot.id);
+        const event_message_ids = await userMessages(guilds[i].id, raid_bot.id, false);
 
         let filename = `./` + guilds[i].id + `.json`;
 
@@ -937,7 +949,7 @@ async function autoTask() {
 
         await promiseWaiting();
 
-        await extractInfoAndUpdateSheet(guilds[i].id);
+        await extractInfoAndUpdateSheet(guilds[i].id, false);
     }
 }
 
@@ -950,7 +962,7 @@ client.on("message", async msg => {
                 if (userCanRunCommand(msg)) {
                     let filename = `./` + msg.channel.guild.id + `.json`;
 
-                    await writeSavedSettings(filename, []);
+                    await writeSavedSettings(filename, [], true);
                 }
             } catch (e) {
                 console.log("Failed to clear config file.")
@@ -976,11 +988,11 @@ client.on("message", async msg => {
                 if (userCanRunCommand(msg)) {
                     const raid_bot = msg.channel.client.users.cache.find(currentMember => currentMember.username === "Raid-Helper");
 
-                    const event_message_ids = await userMessages(msg.channel.guild.id, raid_bot.id);
+                    const event_message_ids = await userMessages(msg.channel.guild.id, raid_bot.id, true);
 
                     let filename = `./` + msg.channel.guild.id + `.json`;
 
-                    await writeSavedSettings(filename, event_message_ids);
+                    await writeSavedSettings(filename, event_message_ids, true);
                 }
             } catch (e) {
                 console.log("Failed to sync message & channel IDs.")
@@ -992,7 +1004,7 @@ client.on("message", async msg => {
 
             try {
                 if (userCanRunCommand(msg)) {
-                    await extractInfoAndUpdateSheet(msg.channel.guild.id);
+                    await extractInfoAndUpdateSheet(msg.channel.guild.id, true);
                 }
             } catch (e) {
                 console.log("Failed to update spreadsheet.")
@@ -1013,8 +1025,8 @@ schedule.scheduleJob('*/15 * * * *', async function(){  // this for one hour
     try {
         await autoTask();
 
-        console.log('Scheduled task run.');
+        console.log('Scheduled task complete.');
     } catch (e) {
-        console.log("Failed to auto run.")
+        console.log("Failed scheduled task.")
     }
 });
