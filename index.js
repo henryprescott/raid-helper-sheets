@@ -1009,7 +1009,7 @@ try {
     console.log("Bot failed to login to discord.");
 }
 
-schedule.scheduleJob('* 1 * * *', async function(){  // this for one hour
+schedule.scheduleJob('*/15 * * * *', async function(){  // this for one hour
     try {
         await autoTask();
 
@@ -1018,4 +1018,3 @@ schedule.scheduleJob('* 1 * * *', async function(){  // this for one hour
         console.log("Failed to auto run.")
     }
 });
-
