@@ -983,16 +983,25 @@ client.on("message", async msg => {
 
         if (msg.content === "!sync") {
             msg.delete({timeout: 100});
-            
+
             try {
                 if (userCanRunCommand(msg)) {
                     const raid_bot = msg.channel.client.users.cache.find(currentMember => currentMember.username === "Raid-Helper");
 
-                    const event_message_ids = await userMessages(msg.channel.guild.id, raid_bot.id, true);
+                    if(raid_bot  != null) {
+                        console.log("Guild name: " + msg.channel.guild.name);
 
-                    let filename = `./` + msg.channel.guild.id + `.json`;
+                        const event_message_ids = await userMessages(msg.channel.guild.id, raid_bot.id, true);
 
-                    await writeSavedSettings(filename, event_message_ids, true);
+                        console.log("mesages: " + event_message_ids);
+
+                        let filename = `./` + msg.channel.guild.id + `.json`;
+
+                        await writeSavedSettings(filename, event_message_ids, true);
+                    }
+                    else {
+                        console.log("Could not find Raid-Helper user.")
+                    }
                 }
             } catch (e) {
                 console.log("Failed to sync message & channel IDs.")
