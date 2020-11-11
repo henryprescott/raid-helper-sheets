@@ -955,8 +955,8 @@ async function autoTask() {
 
 client.on("message", async msg => {
     try {
-        return;
         if (msg.content === "!clearConfig") {
+            msg.delete({timeout: 100});
             try {
                 if (userCanRunCommand(msg)) {
                     let filename = `./` + msg.channel.guild.id + `.json`;
@@ -966,10 +966,10 @@ client.on("message", async msg => {
             } catch (e) {
                 console.log("Failed to clear config file.")
             }
-            msg.delete({timeout: 100});
         }
 
         if (msg.content === "!test") {
+            msg.delete({timeout: 100});
             try {
                 if (userCanRunCommand(msg)) {
                     await autoTask();
@@ -977,18 +977,17 @@ client.on("message", async msg => {
             } catch (e) {
                 console.log("Failed to auto run.")
             }
-            msg.delete({timeout: 100});
         }
 
-        if (msg.content === "!sync") {
+        if (msg.content === "!syncSheet") {
             try {
+                msg.delete({timeout: 100});
                 if (userCanRunCommand(msg)) {
-                    //const raid_bot = msg.channel.client.users.cache.find(currentMember =>{console.log("Username: " + currentMember.username)});// currentMember.username === "Raid-Helper");
+                    const raid_bot_member = await msg.guild.members.fetch('579155972115660803');
 
-                    const test = await userMessages(773217013282897952, 579155972115660803, true);
+                    const raid_bot = raid_bot_member.user;
 
                     if(raid_bot  != null) {
-                        console.log("Guild name: " + msg.channel.guild.name);
 
                         const event_message_ids = await userMessages(msg.channel.guild.id, raid_bot.id, true);
 
@@ -1005,11 +1004,10 @@ client.on("message", async msg => {
             } catch (e) {
                 console.log("Failed to sync message & channel IDs.")
             }
-
-            //msg.delete({timeout: 100});
         }
 
         if (msg.content === "!updateSheet") {
+            msg.delete({timeout: 100});
             try {
                 if (userCanRunCommand(msg)) {
                     await extractInfoAndUpdateSheet(msg.channel.guild.id, true);
@@ -1017,7 +1015,6 @@ client.on("message", async msg => {
             } catch (e) {
                 console.log("Failed to update spreadsheet.")
             }
-            msg.delete({timeout: 100});
         }
     } catch (e) {
         console.log(`Failed to process message.`);
@@ -1030,12 +1027,12 @@ try {
     console.log("Bot failed to login to discord.");
 }
 
-// schedule.scheduleJob('*/15 * * * *', async function(){  // this for one hour
-//     try {
-//         await autoTask();
-//
-//         console.log('Scheduled task complete.');
-//     } catch (e) {
-//         console.log("Failed scheduled task.")
-//     }
-// });
+schedule.scheduleJob('*/15 * * * *', async function(){  // this for one hour
+    try {
+        await autoTask();
+
+        console.log('Scheduled task complete.');
+    } catch (e) {
+        console.log("Failed scheduled task.")
+    }
+});
