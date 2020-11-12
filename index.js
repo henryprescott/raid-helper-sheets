@@ -249,6 +249,34 @@ async function updateEventSheet(event_sheet, sign_up_order, raid_helper_reaction
 
     for (let i = 0; i < raid_helper_reactions.length; i++) {
         const role_title = event_sheet.getCell(1, i + 3);
+
+        const role_count_regex = /\(([^)]*)\)/g; // everything between `**[<find stuff here>]`
+
+        const role_count_match = regexFirstMatch(role_count_regex, role_title.value); // length 0 if nothing found
+
+        let role_count = 0;
+        let less = false;
+
+        if(role_count_match.length > 0)
+        {
+            role_count = parseInt(role_count_match[0]);
+
+            less = role_count > role_sign_up_data[raid_helper_reactions[i]].length;
+        }
+
+        if(less)
+        {
+            const difference = role_count - role_sign_up_data[raid_helper_reactions[i]].length;
+
+            for (let j = 2 + role_sign_up_data[raid_helper_reactions[i]].length + difference - 1; j > role_sign_up_data[raid_helper_reactions[i]].length + 1; j--) {
+                if (event_sheet != null) {
+                    const cell = event_sheet.getCell(j, i + 3);
+                    cell.value = "";
+                    cell.clearAllFormatting();
+                }
+            }
+        }
+
         role_title.value = raid_helper_reactions[i] + " (" + role_sign_up_data[raid_helper_reactions[i]].length + ")";
         role_title.textFormat = { bold: true };
 
