@@ -249,7 +249,7 @@ async function updateEventSheet(event_sheet, sign_up_order, raid_helper_reaction
 
     for (let i = 0; i < raid_helper_reactions.length; i++) {
         const role_title = event_sheet.getCell(1, i + 3);
-        role_title.value = raid_helper_reactions[i];
+        role_title.value = raid_helper_reactions[i] + " (" + role_sign_up_data[raid_helper_reactions[i]].length + ")";
         role_title.textFormat = { bold: true };
 
         //console.log(`Colour: ${role_title}`);
@@ -936,7 +936,7 @@ function promiseWaiting() {
 }
 
 async function autoTask() {
-    const raid_bot = client.users.cache.find(currentMember => currentMember.username === "Raid-Helper");
+    const raid_bot = await client.users.fetch('579155972115660803');
 
     const guilds = client.guilds.cache.array();
 
