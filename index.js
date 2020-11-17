@@ -257,7 +257,7 @@ async function updateEventSheet(event_sheet, sign_up_order, raid_helper_reaction
         let role_count = 0;
         let less = false;
 
-        if(role_count_match.length > 0)
+        if(role_count_match != null && role_count_match.length > 0)
         {
             role_count = parseInt(role_count_match[0]);
 
