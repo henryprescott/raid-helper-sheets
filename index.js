@@ -762,7 +762,7 @@ function getEventData(event_message, raid_helper_reactions, showLogging) {
 
                 for (let sign_up in raw_role_data) {
                     const class_regex = /\:(.*?)\:/gm; // everything between :<find stuff here>:
-                    const sign_up_order_regex = /\`{2}(.*?)\`{2}/gm; // everything between ``<find stuff here>``
+                    const sign_up_order_regex = /\`{1}(.*?)\`{1}/gm; // everything between ``<find stuff here>``
                     const username_regex = /\*{2}(.*?)\*{2}/gm; // everything between **<find stuff here>**
 
                     let class_match = regexFirstMatch(class_regex, raw_role_data[sign_up]); // null if nothing found
