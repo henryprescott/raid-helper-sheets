@@ -12,6 +12,9 @@ const client = new Discord.Client({ partials: ['MESSAGE', 'CHANNEL', 'REACTION']
 
 client.on("ready",() => {
     console.log(`Logged in as ${client.user.tag}!`)
+    console.log(process.env.GOOGLE_SPREADSHEET_ID);
+    console.log(process.env.GOOGLE_SERVICE_ACCOUNT_EMAIL);
+    console.log(process.env.GOOGLE_PRIVATE_KEY);
 })
 
 /* Google Spreadsheet code */
