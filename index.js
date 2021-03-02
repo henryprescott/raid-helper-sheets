@@ -986,7 +986,7 @@ async function autoTask() {
 client.on("message", async msg => {
     try {
         if (msg.content === "!clearConfig") {
-            msg.delete({timeout: 100});
+            //msg.delete({timeout: 100});
             try {
                 if (userCanRunCommand(msg)) {
                     let filename = `./` + msg.channel.guild.id + `.json`;
@@ -999,7 +999,7 @@ client.on("message", async msg => {
         }
 
         if (msg.content === "!test") {
-            msg.delete({timeout: 100});
+            //msg.delete({timeout: 100});
             try {
                 if (userCanRunCommand(msg)) {
                     await autoTask();
@@ -1011,7 +1011,7 @@ client.on("message", async msg => {
 
         if (msg.content === "!syncSheet") {
             try {
-                msg.delete({timeout: 100});
+                //msg.delete({timeout: 100});
                 if (userCanRunCommand(msg)) {
                     const raid_bot_member = await msg.guild.members.fetch('579155972115660803');
 
@@ -1037,7 +1037,7 @@ client.on("message", async msg => {
         }
 
         if (msg.content === "!updateSheet") {
-            msg.delete({timeout: 100});
+            //msg.delete({timeout: 100});
             try {
                 if (userCanRunCommand(msg)) {
                     await extractInfoAndUpdateSheet(msg.channel.guild.id, true);
