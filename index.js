@@ -14,7 +14,6 @@ client.on("ready",() => {
     console.log(`Logged in as ${client.user.tag}!`)
     console.log(process.env.GOOGLE_SPREADSHEET_ID);
     console.log(process.env.GOOGLE_SERVICE_ACCOUNT_EMAIL);
-    console.log(process.env.GOOGLE_PRIVATE_KEY);
 })
 
 /* Google Spreadsheet code */
@@ -22,10 +21,10 @@ client.on("ready",() => {
 async function getSpreadSheet(spreadsheetID) {
     const spreadsheet = new GoogleSpreadsheet(spreadsheetID);
 
-    console.log(process.env.GOOGLE_SPREADSHEET_ID);
+    //console.log(process.env.GOOGLE_SPREADSHEET_ID);
 
-    console.log(process.env.GOOGLE_SERVICE_ACCOUNT_EMAIL);
-    console.log(process.env.GOOGLE_PRIVATE_KEY);
+    //console.log(process.env.GOOGLE_SERVICE_ACCOUNT_EMAIL);
+    //console.log(process.env.GOOGLE_PRIVATE_KEY);
 
     try {
         // use service account creds
