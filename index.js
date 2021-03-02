@@ -1002,6 +1002,7 @@ client.on("message", async msg => {
             //msg.delete({timeout: 100});
             try {
                 if (userCanRunCommand(msg)) {
+                    console.log("Running autoTask");
                     await autoTask();
                 }
             } catch (e) {
