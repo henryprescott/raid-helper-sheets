@@ -14,6 +14,13 @@ client.on("ready",() => {
     console.log(`Logged in as ${client.user.tag}!`)
     console.log(process.env.GOOGLE_SPREADSHEET_ID);
     console.log(process.env.GOOGLE_SERVICE_ACCOUNT_EMAIL);
+    client.user.setPresence({
+        status: "online",  //You can show online, idle....
+        game: {
+            name: "Using !help",  //The message shown
+            type: "LISTENING" //PLAYING: WATCHING: LISTENING: STREAMING:
+        }
+    });
 })
 
 /* Google Spreadsheet code */
