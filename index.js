@@ -282,7 +282,7 @@ async function updateEventSheet(event_sheet, sign_up_order, raid_helper_reaction
         role_title.value = raid_helper_reactions[i] + " (" + role_sign_up_data[raid_helper_reactions[i]].length + ")";
         role_title.textFormat = { bold: true };
 
-        //console.log(`Colour: ${role_title}`);
+        console.log(`Colour: ${role_title}`);
 
         if(raid_helper_reactions[i] === "Tank" || raid_helper_reactions[i] === "Warrior") // #C79C6E
         {
