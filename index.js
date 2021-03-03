@@ -11,6 +11,7 @@ const { GoogleSpreadsheet } = require('google-spreadsheet');
 var schedule = require('node-schedule');
 const Discord = require("discord.js");
 const { title } = require('process');
+const { measureMemory } = require('vm');
 const client = new Discord.Client({ partials: ['MESSAGE', 'CHANNEL', 'REACTION'] })
 
 client.on("ready",() => {
@@ -33,10 +34,10 @@ async function getSpreadSheet(spreadsheetID) {
         // use service account creds
         await spreadsheet.useServiceAccountAuth({
             client_email: process.env.GOOGLE_SERVICE_ACCOUNT_EMAIL,
-            private_key: process.env.GOOGLE_PRIVATE_KEY.replace(/\\n/gm, '\n'),
+            private_key: process.env.GOOGLE_PRIVATE_KEY.replace(/\\n/gm, '\n')
         });
     } catch (e) {
-        console.log("Google Sheets auth failed", e);
+        console.log("Google Sheets auth failed");
     }
 
     try {
@@ -848,7 +849,24 @@ async function userMessages(guildID, userID, showLogging){
             try {
                 if (channels[i].type === 'text') {
                     const messages = await channels[i].messages.fetch();
+                    
+                    const filtered_messages = messages.filter(m => m.author.id === userID).first();
+                    
+                    if(filtered_messages.embeds.length > 0) {
+                        const title_regex = /\*{2}(.*?)\*{2}/gm; // everything between **<find stuff here>**
 
+                        const title_match = regexFirstMatch(title_regex, filtered_messages.embeds[0].fields[1].value); // null if nothing found
+                        
+                        if(title_match != null/* && title_match === "Info:"*/) {
+                            console.log(`Event found: ${filtered_messages.id}`)
+                            let channel_and_message_ids = [];
+                            channel_and_message_ids.push(channels[i].id);
+                            channel_and_message_ids.push(filtered_messages.id);
+                            event_message_ids.push(channel_and_message_ids);
+                        }
+                    }
+
+                    /* Before if you wanna change it
                     const filtered_messages = messages.filter(m => m.author.id === userID).array();
                     
                     const j = filtered_messages.length - 1;
@@ -858,7 +876,7 @@ async function userMessages(guildID, userID, showLogging){
 
                         const title_match = regexFirstMatch(title_regex, filtered_messages[j].embeds[0].fields[1].value); // null if nothing found
                         
-                        if(title_match != null/* && title_match === "Info:"*/) {
+                        if(title_match != null) {
                             console.log(`Event found: ${filtered_messages[j].id}`)
                             let channel_and_message_ids = [];
                             channel_and_message_ids.push(channels[i].id);
@@ -866,6 +884,7 @@ async function userMessages(guildID, userID, showLogging){
                             event_message_ids.push(channel_and_message_ids);
                         }
                     }
+                    */
                 }
             } catch (e) {
                 if(showLogging)
@@ -986,7 +1005,7 @@ async function autoTask() {
 client.on("message", async msg => {
     try {
         if (msg.content === "!clearConfig") {
-            //msg.delete({timeout: 100});
+            msg.delete({timeout: 100});
             try {
                 if (userCanRunCommand(msg)) {
                     let filename = `./data/` + msg.channel.guild.id + `.json`;
@@ -999,7 +1018,7 @@ client.on("message", async msg => {
         }
 
         if (msg.content === "!test") {
-            //msg.delete({timeout: 100});
+            msg.delete({timeout: 100});
             try {
                 if (userCanRunCommand(msg)) {
                     console.log("Running autoTask");
@@ -1012,7 +1031,7 @@ client.on("message", async msg => {
 
         if (msg.content === "!syncSheet") {
             try {
-                //msg.delete({timeout: 100});
+                msg.delete({timeout: 100});
                 if (userCanRunCommand(msg)) {
                     const raid_bot_member = await msg.guild.members.fetch('579155972115660803');
 
@@ -1038,7 +1057,7 @@ client.on("message", async msg => {
         }
 
         if (msg.content === "!updateSheet") {
-            //msg.delete({timeout: 100});
+            msg.delete({timeout: 100});
             try {
                 if (userCanRunCommand(msg)) {
                     await extractInfoAndUpdateSheet(msg.channel.guild.id, true);
