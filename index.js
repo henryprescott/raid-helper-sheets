@@ -50,7 +50,7 @@ const range_of_cells_to_load = 'A1:Z100';
 async function checkEventSheetExists(sheetName) {
     try {
         const spreadsheet = await getSpreadSheet(process.env.GOOGLE_SPREADSHEET_ID);
-
+        console.log(spreadsheet);
         try {
             for (let sheet in spreadsheet.sheetsByIndex) {
                 //const sheet = use doc.sheetsByIndex[0]; // or use doc.sheetsById[id] 
