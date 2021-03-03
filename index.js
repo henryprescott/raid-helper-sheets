@@ -45,7 +45,7 @@ async function getSpreadSheet(spreadsheetID) {
     return spreadsheet;
 }
 
-const range_of_cells_to_load = 'A1:P110';
+const range_of_cells_to_load = 'A1:Z100';
 
 async function checkEventSheetExists(sheetName) {
     try {
