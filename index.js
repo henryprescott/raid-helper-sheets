@@ -36,7 +36,7 @@ async function getSpreadSheet(spreadsheetID) {
             private_key: process.env.GOOGLE_PRIVATE_KEY,
         });
     } catch (e) {
-        console.log("Google Sheets auth failed");
+        console.log("Google Sheets auth failed", e);
     }
 
     try {
