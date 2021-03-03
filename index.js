@@ -31,7 +31,6 @@ async function getSpreadSheet(spreadsheetID) {
         await spreadsheet.useServiceAccountAuth({
             client_email: JSON.parse(`"${process.env.GOOGLE_SERVICE_ACCOUNT_EMAIL}"`),
             private_key: JSON.parse(`"${process.env.GOOGLE_PRIVATE_KEY}"`),
-            console.log("Logging with ServiceAccountAuth...");
         });
     } catch (e) {
         console.log("Google Sheets auth failed");
