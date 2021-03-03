@@ -889,7 +889,7 @@ async function extractInfoAndUpdateSheet(guildID, showLogging) {
 
         for (let i = 0; i < event_message_ids.length; i++) {
             const event_message = await client.channels.cache.get(event_message_ids[i][0]).messages.fetch(event_message_ids[i][1]);
-
+            console.log(event_message)
             if (event_message != null && event_message.author.username === "Raid-Helper") {
 
                 if (event_message.embeds.length <= 0 || event_message.embeds[0].fields.length <= 0) {
