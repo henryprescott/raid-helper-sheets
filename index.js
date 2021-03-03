@@ -53,7 +53,7 @@ async function checkEventSheetExists(sheetName) {
 
         try {
             for (let sheet in spreadsheet.sheetsByIndex) {
-                const sheet = use doc.sheetsById[id]; // or use doc.sheetsById[id] doc.sheetsByIndex[0]
+                const sheet = use doc.sheetsByIndex[0]; // or use doc.sheetsById[id] 
                 console.log(doc.sheetsByIndex[sheet].title);
                 // console.log(doc.sheetsByIndex[sheet].rowCount);
 
