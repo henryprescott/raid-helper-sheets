@@ -1017,11 +1017,11 @@ client.on("message", async msg => {
             }
         }
 
-        if (msg.content === "!test") {
+        if (msg.content === "!updateroster") {
             msg.delete({timeout: 100});
             try {
                 if (userCanRunCommand(msg)) {
-                    console.log("Running autoTask");
+                    console.log("Updating rosters...");
                     await autoTask();
                 }
             } catch (e) {
