@@ -21,8 +21,8 @@ client.on("ready",() => {
     client.user.setPresence({
         status: 'available',
         activity: {
-            name: 'with ducks',
-            type: 'PLAYING',
+            name: 'Signup sheets... :yellow_heart:',
+            type: 'WATCHING',
             url: 'https://discord.com'
         }
     });
