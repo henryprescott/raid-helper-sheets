@@ -16,10 +16,17 @@ const client = new Discord.Client({ partials: ['MESSAGE', 'CHANNEL', 'REACTION']
 
 client.on("ready",() => {
     console.log(`Logged in as ${client.user.tag}!`)
-    client.change_presence(activity=discord.Activity(type=discord.ActivityType.listening, name="a song"))
     console.log(process.env.GOOGLE_SPREADSHEET_ID);
     console.log(process.env.GOOGLE_SERVICE_ACCOUNT_EMAIL);
-})
+    client.user.setPresence({
+        status: 'available',
+        activity: {
+            name: 'with ducks',
+            type: 'PLAYING',
+            url: 'https://discord.com'
+        }
+    });
+});
 
 /* Google Spreadsheet code */
 
