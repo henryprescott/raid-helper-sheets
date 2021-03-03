@@ -1,5 +1,7 @@
 'use strict'
 
+//I just don't have a option to push the git from here so it'll be from desktop
+
 require('dotenv').config();
 
 const fs = require('fs')
@@ -7,7 +9,8 @@ const fs = require('fs')
 const { GoogleSpreadsheet } = require('google-spreadsheet');
 
 var schedule = require('node-schedule');
-const Discord = require("discord.js")
+const Discord = require("discord.js");
+const { title } = require('process');
 const client = new Discord.Client({ partials: ['MESSAGE', 'CHANNEL', 'REACTION'] })
 
 client.on("ready",() => {
@@ -29,8 +32,8 @@ async function getSpreadSheet(spreadsheetID) {
     try {
         // use service account creds
         await spreadsheet.useServiceAccountAuth({
-            client_email: JSON.parse(`"${process.env.GOOGLE_SERVICE_ACCOUNT_EMAIL}"`),
-            private_key: JSON.parse(`"${process.env.GOOGLE_PRIVATE_KEY}"`),
+            client_email: process.env.GOOGLE_SERVICE_ACCOUNT_EMAIL,
+            private_key: process.env.GOOGLE_PRIVATE_KEY,
         });
     } catch (e) {
         console.log("Google Sheets auth failed");
@@ -50,11 +53,11 @@ const range_of_cells_to_load = 'A1:Z100';
 async function checkEventSheetExists(sheetName) {
     try {
         const spreadsheet = await getSpreadSheet(process.env.GOOGLE_SPREADSHEET_ID);
-        console.log(spreadsheet);
+        
         try {
             for (let sheet in spreadsheet.sheetsByIndex) {
                 //const sheet = use doc.sheetsByIndex[0]; // or use doc.sheetsById[id] 
-                console.log(doc.sheetsByIndex[sheet].title);
+                console.log(spreadsheet.sheetsByIndex[sheet].title);
                 // console.log(doc.sheetsByIndex[sheet].rowCount);
 
                 if (spreadsheet.sheetsByIndex[sheet].title === sheetName) {
@@ -549,7 +552,7 @@ async function writeSavedSettings(filename, message_ids, showLogging) {
 
 function getSavedSettings(guild_id) {
 
-    let filename = `./` + guild_id + `.json`;
+    let filename = `./data/` + guild_id + `.json`;
 
     let savedData = [];
 
@@ -603,16 +606,16 @@ function regexFirstMatch(regular_expression, content) {
 /* functions pulling details out of raid-helper events*/
 
 function getEventTitle(eventMessage, showLogging) {
-    const titleField = eventMessage.embeds[0].fields[0];
-
-    // console.log(`Title: ${titleField.value}`);
+    const titleField = eventMessage.embeds[0].description;
+    
+    console.log(`Title: ${titleField}`);
 
     const title_caps_text_regex = /\<\:(.*?)\:/gm; // everything between ``<find stuff here>``
 
-    const title_blocks = regexMatchAll(title_caps_text_regex, titleField.value); // length 0 if nothing found
-
+    const title_blocks = regexMatchAll(title_caps_text_regex, titleField); // length 0 if nothing found
+    
     let title_text = ``;
-
+    
     if(title_blocks.length) {
         // remove trailing _ to leave correct characters
         // replace empty with " "
@@ -650,7 +653,7 @@ function getEventTitle(eventMessage, showLogging) {
 }
 
 function getEventDate(event_message, showLogging) {
-    const date_field = event_message.embeds[0].fields[3]; // assuming date is always at this index (might be dumb)
+    const date_field = event_message.embeds[0].fields[1]; // assuming date is always at this index (might be dumb)
 
     if(showLogging)
         console.log(`Date: ${date_field.value}`);
@@ -840,31 +843,29 @@ async function userMessages(guildID, userID, showLogging){
         let event_message_ids = [];
 
         const channels = await client.guilds.cache.get(guildID).channels.cache.array();
-
+        
         for(let i = 0; i < channels.length; i++) {
             try {
                 if (channels[i].type === 'text') {
+                    const messages = await channels[i].messages.fetch();
 
-                        const messages = await channels[i].messages.fetch();
+                    const filtered_messages = messages.filter(m => m.author.id === userID).array();
+                    
+                    for(let j = 0; j < filtered_messages.length; j++) {
+                        if(filtered_messages[j].embeds.length > 0) {
+                            const title_regex = /\*{2}(.*?)\*{2}/gm; // everything between **<find stuff here>**
 
-                        const filtered_messages = messages.filter(m => m.author.id === userID).array();
-
-                        for(let j = 0; j < filtered_messages.length; j++) {
-                            if(filtered_messages[j].embeds.length > 0) {
-
-                                const title_regex = /\*{2}(.*?)\*{2}/gm; // everything between **<find stuff here>**
-
-                                const title_match = regexFirstMatch(title_regex, filtered_messages[j].embeds[0].fields[1].value); // null if nothing found
-
-                                if(title_match != null && title_match === "Info:") {
-                                    // console.log(`Event found: ${filtered_messages[j].id}`)
-                                    let channel_and_message_ids = [];
-                                    channel_and_message_ids.push(channels[i].id);
-                                    channel_and_message_ids.push(filtered_messages[j].id);
-                                    event_message_ids.push(channel_and_message_ids);
-                                }
+                            const title_match = regexFirstMatch(title_regex, filtered_messages[j].embeds[0].fields[1].value); // null if nothing found
+                            
+                            if(title_match != null/* && title_match === "Info:"*/) {
+                                console.log(`Event found: ${filtered_messages[j].id}`)
+                                let channel_and_message_ids = [];
+                                channel_and_message_ids.push(channels[i].id);
+                                channel_and_message_ids.push(filtered_messages[j].id);
+                                event_message_ids.push(channel_and_message_ids);
                             }
                         }
+                    }
                 }
             } catch (e) {
                 if(showLogging)
@@ -886,12 +887,11 @@ async function userMessages(guildID, userID, showLogging){
 async function extractInfoAndUpdateSheet(guildID, showLogging) {
     try {
         let event_message_ids = getSavedSettings(guildID);
-
+        
         for (let i = 0; i < event_message_ids.length; i++) {
             const event_message = await client.channels.cache.get(event_message_ids[i][0]).messages.fetch(event_message_ids[i][1]);
-            console.log(event_message)
+            
             if (event_message != null && event_message.author.username === "Raid-Helper") {
-
                 if (event_message.embeds.length <= 0 || event_message.embeds[0].fields.length <= 0) {
                     throw "Message doesn't have embeds.";
                 }
@@ -973,7 +973,7 @@ async function autoTask() {
     for( let i = 0; i < guilds.length; i++) {
         const event_message_ids = await userMessages(guilds[i].id, raid_bot.id, false);
 
-        let filename = `./` + guilds[i].id + `.json`;
+        let filename = `./data/` + guilds[i].id + `.json`;
 
         await writeSavedSettings(filename, event_message_ids);
 
@@ -989,7 +989,7 @@ client.on("message", async msg => {
             //msg.delete({timeout: 100});
             try {
                 if (userCanRunCommand(msg)) {
-                    let filename = `./` + msg.channel.guild.id + `.json`;
+                    let filename = `./data/` + msg.channel.guild.id + `.json`;
 
                     await writeSavedSettings(filename, [], true);
                 }
@@ -1024,7 +1024,7 @@ client.on("message", async msg => {
 
                         console.log("mesages: " + event_message_ids);
 
-                        let filename = `./` + msg.channel.guild.id + `.json`;
+                        let filename = `./data/` + msg.channel.guild.id + `.json`;
 
                         await writeSavedSettings(filename, event_message_ids, true);
                     }
