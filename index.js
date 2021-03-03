@@ -45,7 +45,7 @@ async function getSpreadSheet(spreadsheetID) {
     return spreadsheet;
 }
 
-const range_of_cells_to_load = 'A1:Z100';
+const range_of_cells_to_load = 'A1:P110';
 
 async function checkEventSheetExists(sheetName) {
     try {
@@ -53,8 +53,8 @@ async function checkEventSheetExists(sheetName) {
 
         try {
             for (let sheet in spreadsheet.sheetsByIndex) {
-                // const sheet = doc.sheetsByIndex[0]; // or use doc.sheetsById[id]
-                // console.log(doc.sheetsByIndex[sheet].title);
+                const sheet = doc.sheetsByIndex[0]; // or use doc.sheetsById[id]
+                console.log(doc.sheetsByIndex[sheet].title);
                 // console.log(doc.sheetsByIndex[sheet].rowCount);
 
                 if (spreadsheet.sheetsByIndex[sheet].title === sheetName) {
