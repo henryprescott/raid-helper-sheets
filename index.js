@@ -1,6 +1,6 @@
 'use strict'
 
-//I just don't have a option to push the git from here so it'll be from desktop
+//!updateroster - main command to export latest Raid-Helper events
 
 require('dotenv').config();
 
@@ -21,7 +21,7 @@ client.on("ready",() => {
     client.user.setPresence({
         status: 'available',
         activity: {
-            name: 'Signup sheets... :yellow_heart:',
+            name: 'signup sheets...',
             type: 'WATCHING',
             url: 'https://discord.com'
         }
