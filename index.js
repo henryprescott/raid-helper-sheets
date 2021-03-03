@@ -851,19 +851,19 @@ async function userMessages(guildID, userID, showLogging){
 
                     const filtered_messages = messages.filter(m => m.author.id === userID).array();
                     
-                    for(let j = 0; j < filtered_messages.length; j++) {
-                        if(filtered_messages[j].embeds.length > 0) {
-                            const title_regex = /\*{2}(.*?)\*{2}/gm; // everything between **<find stuff here>**
+                    const j = filtered_messages.length - 1;
 
-                            const title_match = regexFirstMatch(title_regex, filtered_messages[j].embeds[0].fields[1].value); // null if nothing found
-                            
-                            if(title_match != null/* && title_match === "Info:"*/) {
-                                console.log(`Event found: ${filtered_messages[j].id}`)
-                                let channel_and_message_ids = [];
-                                channel_and_message_ids.push(channels[i].id);
-                                channel_and_message_ids.push(filtered_messages[j].id);
-                                event_message_ids.push(channel_and_message_ids);
-                            }
+                    if(filtered_messages[j].embeds.length > 0) {
+                        const title_regex = /\*{2}(.*?)\*{2}/gm; // everything between **<find stuff here>**
+
+                        const title_match = regexFirstMatch(title_regex, filtered_messages[j].embeds[0].fields[1].value); // null if nothing found
+                        
+                        if(title_match != null/* && title_match === "Info:"*/) {
+                            console.log(`Event found: ${filtered_messages[j].id}`)
+                            let channel_and_message_ids = [];
+                            channel_and_message_ids.push(channels[i].id);
+                            channel_and_message_ids.push(filtered_messages[j].id);
+                            event_message_ids.push(channel_and_message_ids);
                         }
                     }
                 }
