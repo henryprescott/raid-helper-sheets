@@ -927,7 +927,8 @@ async function extractInfoAndUpdateSheet(guildID, showLogging) {
 
                 const date_text = getEventDate(event_message, showLogging);
 
-                const sheet_name = date_text + ` | ` + event_title;
+                                   //date_text + ` | ` + event_title;
+                const sheet_name = event_title;
 
                 let event_sheet = await checkEventSheetExists(sheet_name);
 
