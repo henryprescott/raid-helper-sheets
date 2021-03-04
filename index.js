@@ -114,7 +114,7 @@ async function createEventSheet(sheetName, showLogging) {
 
 async function updateEventSheet(event_sheet, sign_up_order, raid_helper_reactions, role_sign_up_data) {
     const order_title_cell = event_sheet.getCell(0, 0);
-    order_title_cell.value = "Sign Up Order";
+    order_title_cell.value = "Sign Up Order: " + date_text;
     order_title_cell.textFormat = { bold: true };
 
     const order_spacer_cell = event_sheet.getCell(0, 1);
