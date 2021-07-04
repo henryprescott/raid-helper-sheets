@@ -851,7 +851,7 @@ async function userMessages(guildID, userID, showLogging){
                             if(filtered_messages[j].embeds.length > 0) {
 
                                 const title_regex = /\*{2}(.*?)\*{2}/gm; // everything between **<find stuff here>**
-                                console.log(`${filtered_messages[j]} is the output`)
+                                console.log(JSON.stringify(filtered_messages[j],null,2))
 
                                 const title_match = regexFirstMatch(title_regex, filtered_messages[j].embeds[0].fields[1].value); // null if nothing found
 
