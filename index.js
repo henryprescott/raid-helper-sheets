@@ -854,8 +854,8 @@ async function userMessages(guildID, userID, showLogging){
                                 // console.log(JSON.stringify(filtered_messages[j],null,2))
 
                                 // const title_match = regexFirstMatch(title_regex, filtered_messages[j].embeds[0].fields[1].value); // null if nothing found
-
-                                if(filtered_messages[j].embeds[0].description.substring(0,6) === "Leader:") {
+                                console.log(JSON.stringify(filtered_messages[j].embeds[0].description,null,2))
+                                if(filtered_messages[j].embeds[0].description.trim().substring(0,6) === "Leader:") {
                                     // console.log(`Event found: ${filtered_messages[j].id}`)
                                     let channel_and_message_ids = [];
                                     channel_and_message_ids.push(channels[i].id);
