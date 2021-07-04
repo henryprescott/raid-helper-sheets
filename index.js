@@ -930,11 +930,11 @@ async function extractInfoAndUpdateSheet(guildID, showLogging) {
 
 function checkUserRole(member, msg) {
     // if admin or officer then has permission
-    if (member.roles.cache.some(role => role.name === 'Admin' || role.name === 'Officer')) {
-        // console.log(`${msg.author.username} has permission to run.`);
+    if (member.roles.cache.some(role => role.name === 'Guild Admin' || role.name === 'Guild Officer')) {
+        console.log(`${msg.author.username} has permission to run.`);
         return true;
     } else {
-        // console.log(`${msg.author.username} does not have permission to run.`);
+        console.log(`${msg.author.username} does not have permission to run.`);
         return false;
     }
 }
