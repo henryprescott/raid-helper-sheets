@@ -861,7 +861,7 @@ async function userMessages(guildID, userID, showLogging){
                                 channel_and_message_ids.push(channels[i].id);
                                 channel_and_message_ids.push(filtered_messages[j].id);
                                 event_message_ids.push(channel_and_message_ids);
-                                }
+                                //}
                             }
                         }
                 }
