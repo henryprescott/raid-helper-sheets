@@ -607,7 +607,7 @@ function getEventTitle(eventMessage, showLogging) {
 
     const title_caps_text_regex = /\<\:(.*?)\:/gm; // everything between ``<find stuff here>``
 
-    const title_blocks = regexMatchAll(title_caps_text_regex, titleField.value); // length 0 if nothing found
+    const title_blocks = regexMatchAll(title_caps_text_regex, titleField); // length 0 if nothing found
 
     let title_text = ``;
 
