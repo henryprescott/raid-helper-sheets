@@ -666,16 +666,16 @@ function getEventDate(event_message, showLogging) {
 let roleMapping = {};
 
 // order in which they appear in event
-roleMapping["Tank"] = ["Tank", "Bear", "ProtPaladin"];
-roleMapping["Warrior"] = ["Warrior"];
-roleMapping["Rogue"] = ["Rogue"];
-roleMapping["Hunter"] = ["Hunter"];
-roleMapping["Mage"] = ["Mage"];
-roleMapping["Warlock"] = ["Warlock"];
-roleMapping["Druid"] = ["RestoDruid", "Balance", "Feral"];
-roleMapping["Shaman"] = ["Elemental", "Enhancer", "RestoShaman"];
-roleMapping["Priest"] = ["Priest", "Shadow"];
-roleMapping["Paladin"] = ["HolyPaladin", "Retri"];
+roleMapping["Tank"] = ["Protection", "Protection1", "Guardian"];
+roleMapping["Warrior"] = ["Fury", "Arms"];
+roleMapping["Rogue"] = ["Combat", "Assassination", "Subtlety"];
+roleMapping["Hunter"] = ["Beastmastery", "Survival", "Marksmanship"];
+roleMapping["Mage"] = ["Fire", "Frost", "Arcane"];
+roleMapping["Warlock"] = ["Destruction", "Demonology", "Affliction"];
+roleMapping["Druid"] = ["Restoration", "Balance", "Feral"];
+roleMapping["Shaman"] = ["Elemental", "Enhance", "Restoration1"];
+roleMapping["Priest"] = ["Holy", "Shadow", "Discipline"];
+roleMapping["Paladin"] = ["Holy", "Retribution"];
 roleMapping["Late"] = ["Late"];
 roleMapping["Bench"] = ["Bench"];
 roleMapping["Tentative"] = ["Tentative"];
