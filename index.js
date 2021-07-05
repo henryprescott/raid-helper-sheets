@@ -601,7 +601,7 @@ function regexFirstMatch(regular_expression, content) {
 /* functions pulling details out of raid-helper events*/
 
 function getEventTitle(eventMessage, showLogging) {
-    const titleField = eventMessage.embeds[0].fields[0];
+    const titleField = eventMessage.embeds[0].description;
 
     // console.log(`Title: ${titleField.value}`);
 
