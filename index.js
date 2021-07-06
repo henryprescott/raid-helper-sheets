@@ -252,6 +252,10 @@ async function updateEventSheet(event_sheet, sign_up_order, raid_helper_reaction
             }
         }
     }
+    
+    console.log(`Role signup data: ${role_sign_up_data}`);
+    
+    console.log(`raid_helper_reactions: ${raid_helper_reactions}`);
 
     for (let i = 0; i < raid_helper_reactions.length; i++) {
         const role_title = event_sheet.getCell(1, i + 3);
