@@ -26,7 +26,7 @@ You'll need to have google sheets API enabled through the google developer porta
 
 GOOGLE_PRIVATE_KEY
 
-through the developer portal find your service account that you created and then generate a private key for it and save the whole private key (long string) here.
+through the developer portal find your service account that you created and then generate a private key for it and save the whole private key (long string) here.  If you pull this from downloaded JSON, before that you remove the quotes. the env var should start with  ----- and end with -----   wrapping the whole massive certificate.
 
 DISCORD_BOT_TOKEN
 
