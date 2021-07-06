@@ -825,7 +825,7 @@ function getEventData(event_message, raid_helper_reactions, showLogging) {
     delete role_sign_up_data["Destruction"];
     delete role_sign_up_data["Demonology"];
     delete role_sign_up_data["Affliction"];
-    role_sign_up_data["Mage"] = [...role_sign_up_data["Beastmastery"], ...role_sign_up_data["Survival"], ...role_sign_up_data["Marksmanship"]];
+    role_sign_up_data["Hunter"] = [...role_sign_up_data["Beastmastery"], ...role_sign_up_data["Survival"], ...role_sign_up_data["Marksmanship"]];
     delete role_sign_up_data["Beastmastery"];
     delete role_sign_up_data["Survival"];
     delete role_sign_up_data["Marksmanship"];
