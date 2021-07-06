@@ -253,7 +253,7 @@ async function updateEventSheet(event_sheet, sign_up_order, raid_helper_reaction
         }
     }
     
-    console.log(`Role signup data: ${role_sign_up_data}`);
+    console.log(`Role signup data: ${JSON.stringify(role_sign_up_data, null, 2)}`);
     
     console.log(`raid_helper_reactions: ${raid_helper_reactions}`);
 
