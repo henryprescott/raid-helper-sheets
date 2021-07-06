@@ -31,13 +31,15 @@ async function getSpreadSheet(spreadsheetID) {
             private_key: JSON.parse(`"${process.env.GOOGLE_PRIVATE_KEY}"`),
         });
     } catch (e) {
+        console.error(e);
         console.log("Google Sheets auth failed");
     }
 
     try {
         await spreadsheet.loadInfo(); // loads document properties and worksheets
     } catch (e) {
-        console.log("Failed to load Google Sheet Info.")
+        console.error(e);
+        console.log("Failed to load Google Sheet Info.");
     }
 
     return spreadsheet;
@@ -64,10 +66,12 @@ async function checkEventSheetExists(sheetName) {
                 }
             }
         } catch (e) {
-            console.log("Failed to find test sheet and load cells.")
+            console.error(e);
+            console.log("Failed to find test sheet and load cells.");
         }
     } catch (e) {
-        console.log("Failed to get Google Sheet.")
+        console.error(e);
+        console.log("Failed to get Google Sheet.");
     }
 
     return null;
@@ -89,9 +93,11 @@ async function createEventSheet(sheetName, showLogging) {
 
             return new_sheet;
         } catch (e) {
+            console.error(e);
             console.log(`Failed to create new sheet: ${sheetName}.`);
         }
     } catch (e) {
+        console.error(e);
         console.log("Failed to get Google Sheet.");
     }
 
@@ -560,6 +566,7 @@ function getSavedSettings(guild_id) {
             savedData = [];
         }
     } catch (e) {
+        console.error(e);
         throw `Failed to load saved settings for: ${guild_id}.`;
     }
 
@@ -877,6 +884,7 @@ async function userMessages(guildID, userID, showLogging){
 
         return event_message_ids;
     } catch (e) {
+        console.error(e);
         console.log(`Failed to get channels available.`)
         return [];
     }
@@ -924,8 +932,8 @@ async function extractInfoAndUpdateSheet(guildID, showLogging) {
                 }
             }
         }
-    } catch (error) {
-        console.error(error);
+    } catch (e) {
+        console.error(e);
         console.log(`failed to count roles: ${error}`);
     }
 }
@@ -995,6 +1003,7 @@ client.on("message", async msg => {
                     await writeSavedSettings(filename, [], true);
                 }
             } catch (e) {
+                console.error(e);
                 console.log("Failed to clear config file.")
             }
         }
@@ -1034,6 +1043,7 @@ client.on("message", async msg => {
                     }
                 }
             } catch (e) {
+                console.error(e);
                 console.log("Failed to sync message & channel IDs.")
             }
         }
@@ -1045,6 +1055,7 @@ client.on("message", async msg => {
                     await extractInfoAndUpdateSheet(msg.channel.guild.id, true);
                 }
             } catch (e) {
+                console.error(e);
                 console.log("Failed to update spreadsheet.")
             }
         }
@@ -1057,6 +1068,7 @@ client.on("message", async msg => {
 try {
     client.login(process.env.DISCORD_BOT_TOKEN);
 } catch (e) {
+    console.error(e);
     console.log("Bot failed to login to discord.");
 }
 
@@ -1066,6 +1078,7 @@ schedule.scheduleJob('*/15 * * * *', async function(){  // this for one hour
 
         console.log('Scheduled task complete.');
     } catch (e) {
+        console.error(e);
         console.log("Failed scheduled task.")
     }
 });
