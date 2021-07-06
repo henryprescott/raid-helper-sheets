@@ -45,7 +45,9 @@ async function getSpreadSheet(spreadsheetID) {
     return spreadsheet;
 }
 
-const range_of_cells_to_load = 'A1:AZ100';
+const range_of_cells_to_load = { // GridRange object
+  startRowIndex: 0, endRowIndex: 100, startColumnIndex:0, endColumnIndex: 40
+};
 
 async function checkEventSheetExists(sheetName) {
     try {
