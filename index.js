@@ -785,7 +785,7 @@ function getEventData(event_message, raid_helper_reactions, showLogging) {
                         let sign_up_info = [];
                         sign_up_info.push(signup_username_match);
                         sign_up_info.push(signup_order_match); // going to keep order just in case
-                        console.log(class_match);
+                        // console.log(class_match);
                         role_classes[class_match].push(sign_up_info);
 
                         let name_and_role = [];
@@ -922,8 +922,8 @@ async function extractInfoAndUpdateSheet(guildID, showLogging) {
                 let raid_helper_reactions = await getEventReactions(event_message);
 
                 if(showLogging) {
-                    console.log("Roles:");
-                    console.log(raid_helper_reactions);
+                    // console.log("Roles:");
+                    // console.log(raid_helper_reactions);
                 }
 
                 let {role_sign_up_data, sign_up_order} = getEventData(event_message, raid_helper_reactions, showLogging);
