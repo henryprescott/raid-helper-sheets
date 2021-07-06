@@ -283,6 +283,7 @@ async function updateEventSheet(event_sheet, sign_up_order, raid_helper_reaction
             }
         }
 
+        console.log(raid_helper_reactions[i]);
         role_title.value = raid_helper_reactions[i] + " (" + role_sign_up_data[raid_helper_reactions[i]].length + ")";
         role_title.textFormat = { bold: true };
 
@@ -934,7 +935,7 @@ async function extractInfoAndUpdateSheet(guildID, showLogging) {
         }
     } catch (e) {
         console.error(e);
-        console.log(`failed to count roles: ${error}`);
+        console.log(`failed to count roles: ${e}`);
     }
 }
 
