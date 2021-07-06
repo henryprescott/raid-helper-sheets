@@ -814,6 +814,21 @@ function getEventData(event_message, raid_helper_reactions, showLogging) {
             role_sign_up_data[sub_role] = role_and_class_data[role][sub_role];
         }
     }
+    
+    // Condense from TBC roles back to something that fits in sheets.
+    
+    role_sign_up_data["Mage"] = [...role_sign_up_data["Fire"], ...role_sign_up_data["Frost"], ...role_sign_up_data["Arcane"]];
+    delete role_sign_up_data["Fire"];
+    delete role_sign_up_data["Frost"];
+    delete role_sign_up_data["Arcane"];
+    role_sign_up_data["Warlock"] = [...role_sign_up_data["Destruction"], ...role_sign_up_data["Demonology"], ...role_sign_up_data["Affliction"]];
+    delete role_sign_up_data["Destruction"];
+    delete role_sign_up_data["Demonology"];
+    delete role_sign_up_data["Affliction"];
+    role_sign_up_data["Mage"] = [...role_sign_up_data["Beastmastery"], ...role_sign_up_data["Survival"], ...role_sign_up_data["Markmanship"]];
+    delete role_sign_up_data["Beastmastery"];
+    delete role_sign_up_data["Survival"];
+    delete role_sign_up_data["Markmanship"];
 
     if(showLogging) {
         // console.log("Sign up data:");
