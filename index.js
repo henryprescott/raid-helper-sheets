@@ -925,6 +925,7 @@ async function extractInfoAndUpdateSheet(guildID, showLogging) {
             }
         }
     } catch (error) {
+        console.error(error);
         console.log(`failed to count roles: ${error}`);
     }
 }
@@ -950,6 +951,7 @@ function userCanRunCommand(msg) {
         has_permissions = checkUserRole(member, msg);
 
     } catch (e) {
+        console.error(e);
         Console.log(`Failed to check permissions.`)
     }
 
@@ -1004,6 +1006,7 @@ client.on("message", async msg => {
                     await autoTask();
                 }
             } catch (e) {
+                console.error(e);
                 console.log("Failed to auto run.")
             }
         }
@@ -1046,6 +1049,7 @@ client.on("message", async msg => {
             }
         }
     } catch (e) {
+        console.error(e);
         console.log(`Failed to process message.`);
     }
 })
