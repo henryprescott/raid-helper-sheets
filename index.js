@@ -935,7 +935,7 @@ async function extractInfoAndUpdateSheet(guildID, showLogging) {
         }
     } catch (e) {
         console.error(e);
-        console.log(`failed to count roles: ${e}`);
+        console.log(`failed to count roles: ${error}`);
     }
 }
 
