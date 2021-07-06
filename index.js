@@ -133,7 +133,7 @@ async function updateEventSheet(event_sheet, sign_up_order, raid_helper_reaction
             const username_cell = event_sheet.getCell(sign_up, 1);
             username_cell.value = sign_up_order[sign_up][0];
 
-            if(sign_up_order[sign_up][1] === "Tank" || sign_up_order[sign_up][1] === "Warrior") // #C79C6E
+            if(sign_up_order[sign_up][1] === "Protection" || sign_up_order[sign_up][1] === "Arms" || sign_up_order[sign_up][1] === "Fury") // warrior / #C79C6E
             {
                 username_cell.backgroundColor = {
                     "red": 0.898,
@@ -293,7 +293,7 @@ async function updateEventSheet(event_sheet, sign_up_order, raid_helper_reaction
 
         //console.log(`Colour: ${role_title}`);
 
-        if(raid_helper_reactions[i] === "Tank" || raid_helper_reactions[i] === "Warrior") // #C79C6E
+        if(raid_helper_reactions[i] === "Protection" || raid_helper_reactions[i] === "Arms" || raid_helper_reactions[i] === "Fury") // Warrior #C79C6E
         {
             role_title.backgroundColor = {
                 "red": 0.78,
@@ -922,18 +922,20 @@ async function extractInfoAndUpdateSheet(guildID, showLogging) {
 
                 if(showLogging)
                     console.log(`Sheet name: ${sheet_name}`);
-
+                // this doesn't seem to be valid.  see TODO001
                 let raid_helper_reactions = await getEventReactions(event_message);
 
                 if(showLogging) {
                     // console.log("Roles:");
                     // console.log(raid_helper_reactions);
                 }
-
+                // this doesn't seem to the be way.. TODO001 -
                 let {role_sign_up_data, sign_up_order} = getEventData(event_message, raid_helper_reactions, showLogging);
-
+                
                 if (event_sheet != null) {
-                    await updateEventSheet(event_sheet, sign_up_order, raid_helper_reactions, role_sign_up_data);
+                    // TODO001 - also changed 
+                    // await updateEventSheet(event_sheet, sign_up_order, raid_helper_reactions, role_sign_up_data);
+                    await updateEventSheet(event_sheet, sign_up_order, Object.keys(role_sign_up_data), role_sign_up_data);
                 }
             }
         }
