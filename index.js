@@ -830,7 +830,7 @@ async function getEventReactions(event_message) {
         for (let user in users) {
             if (users[user].bot) {
                 raid_helper_reactions.push(reactions[reaction].emoji.name)
-                console.log(`Role: ${eventReactions[reaction].emoji.name}, username: ${users[user].username}`);
+                console.log(`Role: ${reactions[reaction].emoji.name}, username: ${users[user].username}`);
                 break;
             }
         }
