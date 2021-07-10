@@ -32,6 +32,12 @@ DISCORD_BOT_TOKEN
 
 You will need to add a discord bot token that you can generate through the discord developer portal
 
+DISCORD_ROLES
+
+Csv list of Roles that have accesss to the application that need to match your actual discord roles for roles that you want to be able to send commands to the bot.  if not set, this will default to:   Admin,Guild Officer
+
+Which will grant users with (Admin) or users with (Guild OFficer) access to use the bot.
+
 # Discord Permissions
 
 through the discord developer portal you should generate an OAUTH authentication token with the following enabled:
