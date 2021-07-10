@@ -287,7 +287,7 @@ async function updateEventSheet(event_sheet, sign_up_order, raid_helper_reaction
             }
         }
 
-        console.log(raid_helper_reactions[i]);
+        //console.log(raid_helper_reactions[i]);
         role_title.value = raid_helper_reactions[i] + " (" + role_sign_up_data[raid_helper_reactions[i]].length + ")";
         role_title.textFormat = { bold: true };
 
@@ -661,7 +661,8 @@ function getEventTitle(eventMessage, showLogging) {
 
 function getEventDate(event_message, showLogging) {
     const date_field = event_message.embeds[0].fields[3]; // assuming date is always at this index (might be dumb)
-
+    
+    console.log(`Date: ${date_field.value}`);
     if(showLogging)
         console.log(`Date: ${date_field.value}`);
 
