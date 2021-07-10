@@ -929,7 +929,8 @@ async function extractInfoAndUpdateSheet(guildID, showLogging) {
                 }
 
                 const event_title = getEventTitle(event_message, showLogging);
-
+                console.log("Raw Event Message");
+                console.log(event_message);
                 const date_text = getEventDate(event_message, showLogging);
 
                 const sheet_name = date_text + ` | ` + event_title;
