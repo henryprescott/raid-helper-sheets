@@ -114,15 +114,13 @@ async function updateEventSheet(event_sheet, sign_up_order, raid_helper_reaction
     const order_spacer_cell = event_sheet.getCell(0, 1);
     order_spacer_cell.value = "";
 
-    const empty_spacer_cell = event_sheet.getCell(0, 2);
-    empty_spacer_cell.value = "";
 
-    const roles_title_cell = event_sheet.getCell(0, 3);
+    const roles_title_cell = event_sheet.getCell(0, 2);
     roles_title_cell.value = "Roles";
     roles_title_cell.textFormat = { bold: true };
 
 
-    const roles_spacer_cell = event_sheet.getCell(0, 4);
+    const roles_spacer_cell = event_sheet.getCell(0, 3);
     roles_spacer_cell.value = "";
 
 
@@ -180,7 +178,7 @@ async function updateEventSheet(event_sheet, sign_up_order, raid_helper_reaction
                     "alpha": 1.0
                 };
             }
-            else if(sign_up_order[sign_up][1] === "Priest") // #FFFFFF
+            else if(sign_up_order[sign_up][1] === "Priest" || sign_up_order[sign_up][1] === "Holy" || sign_up_order[sign_up][1] === "Discipline") // #FFFFFF
             {
                 username_cell.backgroundColor = {
                     "red": 1.0,
@@ -198,7 +196,7 @@ async function updateEventSheet(event_sheet, sign_up_order, raid_helper_reaction
                     "alpha": 1.0
                 };
             }
-            else if(sign_up_order[sign_up][1] === "RestoShaman" || sign_up_order[sign_up][1] === "Enhancer" || sign_up_order[sign_up][1] === "Elemental") // #0070DE
+            else if(sign_up_order[sign_up][1] === "Restoration1" || sign_up_order[sign_up][1] === "Enhancement" || sign_up_order[sign_up][1] === "Elemental") // #0070DE
             {
                 username_cell.backgroundColor = {
                     "red": 0.701,
@@ -207,7 +205,7 @@ async function updateEventSheet(event_sheet, sign_up_order, raid_helper_reaction
                     "alpha": 1.0
                 };
             }
-            else if(sign_up_order[sign_up][1] === "RestoDruid" || sign_up_order[sign_up][1] === "Bear" || sign_up_order[sign_up][1] === "Feral" || sign_up_order[sign_up][1] === "Balance") // #FF7D0A
+            else if(sign_up_order[sign_up][1] === "Restoration" || sign_up_order[sign_up][1] === "Bear" || sign_up_order[sign_up][1] === "Feral" || sign_up_order[sign_up][1] === "Balance") // #FF7D0A
             {
                 username_cell.backgroundColor = {
                     "red": 1.0,
@@ -216,7 +214,7 @@ async function updateEventSheet(event_sheet, sign_up_order, raid_helper_reaction
                     "alpha": 1.0
                 };
             }
-            else if(sign_up_order[sign_up][1] === "Late") // #F58CBA
+            else if(sign_up_order[sign_up][1] === "Late" || sign_up_order[sign_up][1] === "Holy1" || sign_up_order[sign_up][1] === "Retribution") // #F58CBA
             {
                 username_cell.backgroundColor = {
                     "red": 0.984,
@@ -260,7 +258,7 @@ async function updateEventSheet(event_sheet, sign_up_order, raid_helper_reaction
     console.log(`raid_helper_reactions: ${raid_helper_reactions}`);
 
     for (let i = 0; i < raid_helper_reactions.length; i++) {
-        const role_title = event_sheet.getCell(1, i + 3);
+        const role_title = event_sheet.getCell(1, i + 2);
 
         const role_count_regex = /\(([^)]*)\)/g; // everything between `**[<find stuff here>]`
 
@@ -282,7 +280,7 @@ async function updateEventSheet(event_sheet, sign_up_order, raid_helper_reaction
 
             for (let j = 2 + role_sign_up_data[raid_helper_reactions[i]].length + difference - 1; j > role_sign_up_data[raid_helper_reactions[i]].length + 1; j--) {
                 if (event_sheet != null) {
-                    const cell = event_sheet.getCell(j, i + 3);
+                    const cell = event_sheet.getCell(j, i + 2);
                     cell.value = "";
                     cell.clearAllFormatting();
                 }
@@ -340,7 +338,7 @@ async function updateEventSheet(event_sheet, sign_up_order, raid_helper_reaction
                 "alpha": 1.0
             };
         }
-        else if(raid_helper_reactions[i] === "Priest") // #FFFFFF
+        else if(raid_helper_reactions[i] === "Holy" || raid_helper_reactions[i] === "Discipline" ) // #FFFFFF
         {
             role_title.backgroundColor = {
                 "red": 1.0,
@@ -358,7 +356,7 @@ async function updateEventSheet(event_sheet, sign_up_order, raid_helper_reaction
                 "alpha": 1.0
             };
         }
-        else if(raid_helper_reactions[i] === "RestoShaman" || raid_helper_reactions[i] === "Enhancer" || raid_helper_reactions[i] === "Elemental") // #0070DE
+        else if(raid_helper_reactions[i] === "Restoration1" || raid_helper_reactions[i] === "Enhancement" || raid_helper_reactions[i] === "Elemental") // #0070DE
         {
             role_title.backgroundColor = {
                 "red": 0.0,
@@ -367,7 +365,7 @@ async function updateEventSheet(event_sheet, sign_up_order, raid_helper_reaction
                 "alpha": 1.0
             };
         }
-        else if(raid_helper_reactions[i] === "RestoDruid" || raid_helper_reactions[i] === "Bear" || raid_helper_reactions[i] === "Feral" || raid_helper_reactions[i] === "Balance") // #FF7D0A
+        else if(raid_helper_reactions[i] === "Restoration" || raid_helper_reactions[i] === "Bear" || raid_helper_reactions[i] === "Feral" || raid_helper_reactions[i] === "Balance") // #FF7D0A
         {
             role_title.backgroundColor = {
                 "red": 1.0,
@@ -376,7 +374,7 @@ async function updateEventSheet(event_sheet, sign_up_order, raid_helper_reaction
                 "alpha": 1.0
             };
         }
-        else if(raid_helper_reactions[i] === "Late") // #F58CBA
+        else if(raid_helper_reactions[i] === "Late" || raid_helper_reactions[i] === "Holy1" || raid_helper_reactions[i] === "Retribution") // #F58CBA
         {
             role_title.backgroundColor = {
                 "red": 0.960,
@@ -419,7 +417,7 @@ async function updateEventSheet(event_sheet, sign_up_order, raid_helper_reaction
                 const cell = event_sheet.getCell(j + 2, i + 3);
                 cell.value = role_sign_up_data[raid_helper_reactions[i]][j][0];
 
-                if(raid_helper_reactions[i] === "Tank" || raid_helper_reactions[i] === "Warrior") // #C79C6E
+                if(raid_helper_reactions[i] === "Tank" || raid_helper_reactions[i] === "Warrior" || raid_helper_reactions[i] === "Arms" || raid_helper_reactions[i] === "Fury") // #C79C6E
                 {
                     cell.backgroundColor = {
                         "red": 0.898,
@@ -464,7 +462,7 @@ async function updateEventSheet(event_sheet, sign_up_order, raid_helper_reaction
                         "alpha": 1.0
                     };
                 }
-                else if(raid_helper_reactions[i] === "Priest") // #FFFFFF
+                else if(raid_helper_reactions[i] === "Holy" || raid_helper_reactions[i] === "Discipline") // #FFFFFF
                 {
                     cell.backgroundColor = {
                         "red": 1.0,
@@ -482,7 +480,7 @@ async function updateEventSheet(event_sheet, sign_up_order, raid_helper_reaction
                         "alpha": 1.0
                     };
                 }
-                else if(raid_helper_reactions[i] === "RestoShaman" || raid_helper_reactions[i] === "Enhancer" || raid_helper_reactions[i] === "Elemental") // #0070DE
+                else if(raid_helper_reactions[i] === "Restoration1" || raid_helper_reactions[i] === "Enhancement" || raid_helper_reactions[i] === "Elemental") // #0070DE
                 {
                     cell.backgroundColor = {
                         "red": 0.701,
@@ -491,7 +489,7 @@ async function updateEventSheet(event_sheet, sign_up_order, raid_helper_reaction
                         "alpha": 1.0
                     };
                 }
-                else if(raid_helper_reactions[i] === "RestoDruid" || raid_helper_reactions[i] === "Bear" || raid_helper_reactions[i] === "Feral" || raid_helper_reactions[i] === "Balance") // #FF7D0A
+                else if(raid_helper_reactions[i] === "Restoration" || raid_helper_reactions[i] === "Bear" || raid_helper_reactions[i] === "Feral" || raid_helper_reactions[i] === "Balance") // #FF7D0A
                 {
                     cell.backgroundColor = {
                         "red": 1.0,
@@ -500,7 +498,7 @@ async function updateEventSheet(event_sheet, sign_up_order, raid_helper_reaction
                         "alpha": 1.0
                     };
                 }
-                else if(raid_helper_reactions[i] === "Late") // #F58CBA
+                else if(raid_helper_reactions[i] === "Late" || raid_helper_reactions[i] === "Holy1" || raid_helper_reactions[i] === "Retribution") // #F58CBA
                 {
                     cell.backgroundColor = {
                         "red": 0.984,
@@ -689,7 +687,7 @@ roleMapping["Warlock"] = ["Destruction", "Demonology", "Affliction"];
 roleMapping["Druid"] = ["Restoration", "Balance", "Feral"];
 roleMapping["Shaman"] = ["Elemental", "Enhancement", "Restoration1"];
 roleMapping["Priest"] = ["Holy", "Shadow", "Discipline"];
-roleMapping["Paladin"] = ["Holy", "Retribution"];
+roleMapping["Paladin"] = ["Holy1", "Retribution"];
 roleMapping["Late"] = ["Late"];
 roleMapping["Bench"] = ["Bench"];
 roleMapping["Tentative"] = ["Tentative"];
