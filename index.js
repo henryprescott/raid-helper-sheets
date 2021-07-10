@@ -414,7 +414,7 @@ async function updateEventSheet(event_sheet, sign_up_order, raid_helper_reaction
         for (let j = 0; j < role_sign_up_data[raid_helper_reactions[i]].length; j++) {
             // console.log(`Cell: ${i}, ${j} - ${role_sign_up_data[raid_helper_reactions[i]][j]}`);
             if (event_sheet != null) {
-                const cell = event_sheet.getCell(j + 2, i + 3);
+                const cell = event_sheet.getCell(j + 2, i + 2);
                 cell.value = role_sign_up_data[raid_helper_reactions[i]][j][0];
 
                 if(raid_helper_reactions[i] === "Tank" || raid_helper_reactions[i] === "Warrior" || raid_helper_reactions[i] === "Arms" || raid_helper_reactions[i] === "Fury") // #C79C6E
