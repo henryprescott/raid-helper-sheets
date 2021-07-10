@@ -967,11 +967,10 @@ async function extractInfoAndUpdateSheet(guildID, showLogging) {
 }
 
 function checkUserRole(member, msg) {
+    
+    let roles_with_access = ["Admin","Guild Officer"];
     if(process.env.DISCORD_ROLES) { 
-        let roles_with_access = process.env.DISCORD_ROLES.split(",")
-    }
-    else { 
-        let roles_with_access = ["Admin","Guild Officer"];
+        roles_with_access = process.env.DISCORD_ROLES.split(",");
     }
 
     if (member.roles.cache.some(role => roles_with_access.includes(role.name))) {
