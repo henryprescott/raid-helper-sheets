@@ -209,9 +209,9 @@ async function updateEventSheet(event_sheet, sign_up_order, raid_helper_reaction
             if(sign_up_order[sign_up][1] === "Protection" || sign_up_order[sign_up][1] === "Arms" || sign_up_order[sign_up][1] === "Fury") // warrior / #ac937b
             {
                 username_cell.backgroundColor = {
-                    "red": 0.898,
-                    "green": 0.823,
-                    "blue": 0.741,
+                    "red": 0.6745,
+                    "green": 0.5765,
+                    "blue": 0.4824,
                     "alpha": 1.0
                 };
             }
@@ -219,80 +219,80 @@ async function updateEventSheet(event_sheet, sign_up_order, raid_helper_reaction
             {
                 username_cell.backgroundColor = {
                     "red": 1.0,
-                    "green": 0.988,
-                    "blue": 0.8,
+                    "green": 0.949,
+                    "blue": 0.6863,
                     "alpha": 1.0
                 };
             }
             else if(sign_up_order[sign_up][1] === "Hunter" || sign_up_order[sign_up][1] === "Beastmaster" || sign_up_order[sign_up][1] === "Marksmanship" || sign_up_order[sign_up][1] === "Survival") // #a7d3a1
             {
                 username_cell.backgroundColor = {
-                    "red": 0.870,
-                    "green": 0.933,
-                    "blue": 0.788,
+                    "red": 0.6549,
+                    "green": 0.8275,
+                    "blue": 0.6314,
                     "alpha": 1.0
                 };
             }
             else if(sign_up_order[sign_up][1] === "Mage" || sign_up_order[sign_up][1] === "Arcane" || sign_up_order[sign_up][1] === "Frost" || sign_up_order[sign_up][1] === "Fire") // #7edfff
             {
                 username_cell.backgroundColor = {
-                    "red": 0.780,
-                    "green": 0.925,
-                    "blue": 0.980,
+                    "red": 0.4941,
+                    "green": 0.8745,
+                    "blue": 1.0,
                     "alpha": 1.0
                 };
             }
             else if(sign_up_order[sign_up][1] === "Warlock" || sign_up_order[sign_up][1] === "Demonology" || sign_up_order[sign_up][1] === "Destruction" || sign_up_order[sign_up][1] === "Affliction") // #a482e9
             {
                 username_cell.backgroundColor = {
-                    "red": 0.831,
-                    "green": 0.803,
-                    "blue": 0.913,
+                    "red": 0.6431,
+                    "green": 0.5098,
+                    "blue": 0.9137,
                     "alpha": 1.0
                 };
             }
             else if(sign_up_order[sign_up][1] === "Priest" || sign_up_order[sign_up][1] === "Holy" || sign_up_order[sign_up][1] === "Discipline") // #f2e0f6
             {
                 username_cell.backgroundColor = {
-                    "red": 1.0,
-                    "green": 1.0,
-                    "blue": 1.0,
+                    "red": 0.949,
+                    "green": 0.8784,
+                    "blue": 0.9647,
                     "alpha": 1.0
                 };
             }
             else if(sign_up_order[sign_up][1] === "Shadow") // #f2e0f6
             {
                 username_cell.backgroundColor = {
-                    "red": 1.0,
-                    "green": 1.0,
-                    "blue": 1.0,
+                    "red": 0.949,
+                    "green": 0.8784,
+                    "blue": 0.9647,
                     "alpha": 1.0
                 };
             }
             else if(sign_up_order[sign_up][1] === "Restoration1" || sign_up_order[sign_up][1] === "Enhancement" || sign_up_order[sign_up][1] === "Elemental") // #4b91e7
             {
                 username_cell.backgroundColor = {
-                    "red": 0.701,
-                    "green": 0.850,
-                    "blue": 1.0,
+                    "red": 0.2941,
+                    "green": 0.5686,
+                    "blue": 0.9059,
                     "alpha": 1.0
                 };
             }
             else if(sign_up_order[sign_up][1] === "Restoration" || sign_up_order[sign_up][1] === "Guardian" || sign_up_order[sign_up][1] === "Feral" || sign_up_order[sign_up][1] === "Balance") // #faab6f
             {
                 username_cell.backgroundColor = {
-                    "red": 1.0,
-                    "green": 0.862,
-                    "blue": 0.741,
+                    "red": 0.9804,
+                    "green": 0.6706,
+                    "blue": 0.4353,
                     "alpha": 1.0
                 };
             }
             else if(sign_up_order[sign_up][1] === "Late") // #99cc33
             {
                 username_cell.backgroundColor = {
-                    "red": 0.984,
-                    "green": 0.796,
-                    "blue": 0.878,
+                    "red": 0.6,
+                    "green": 0.8,
+                    "blue": 0.2,
                     "alpha": 1.0
                 };
             }
@@ -308,27 +308,27 @@ async function updateEventSheet(event_sheet, sign_up_order, raid_helper_reaction
             else if(sign_up_order[sign_up][1] === "Bench") // #339900
             {
                 username_cell.backgroundColor = {
-                    "red": 0.898,
-                    "green": 0.756,
-                    "blue": 0.941,
+                    "red": 0.2,
+                    "green": 0.6,
+                    "blue": 0.0,
                     "alpha": 1.0
                 };
             }
             else if(sign_up_order[sign_up][1] === "Tentative") // #ffcc00
             {
                 username_cell.backgroundColor = {
-                    "red": 0.741,
-                    "green": 1.0,
-                    "blue": 0.894,
+                    "red": 1.0,
+                    "green": 0.8,
+                    "blue": 0.0,
                     "alpha": 1.0
                 };
             }
             else if(sign_up_order[sign_up][1] === "Absence") // #cc3300
             {
                 username_cell.backgroundColor = {
-                    "red": 0.921,
-                    "green": 0.458,
-                    "blue": 0.537,
+                    "red": 0.8,
+                    "green": 0.2,
+                    "blue": 0.0,
                     "alpha": 1.0
                 };
             }
