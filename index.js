@@ -253,9 +253,9 @@ async function updateEventSheet(event_sheet, sign_up_order, raid_helper_reaction
         }
     }
     
-    console.log(`Role signup data: ${JSON.stringify(role_sign_up_data, null, 2)}`);
+    // console.log(`Role signup data: ${JSON.stringify(role_sign_up_data, null, 2)}`);
     
-    console.log(`raid_helper_reactions: ${raid_helper_reactions}`);
+    // console.log(`raid_helper_reactions: ${raid_helper_reactions}`);
 
     for (let i = 0; i < raid_helper_reactions.length; i++) {
         const role_title = event_sheet.getCell(1, i + 2);
@@ -886,7 +886,7 @@ async function userMessages(guildID, userID, showLogging){
                                 // console.log(JSON.stringify(filtered_messages[j],null,2))
 
                                 // const title_match = regexFirstMatch(title_regex, filtered_messages[j].embeds[0].fields[1].value); // null if nothing found
-                                console.log(JSON.stringify(filtered_messages[j].embeds[0],null,2))
+                                // console.log(JSON.stringify(filtered_messages[j].embeds[0],null,2))
                                 //if(filtered_messages[j].embeds[0].description.trim().substring(0,6) === "Leader:") {
                                     // console.log(`Event found: ${filtered_messages[j].id}`)
                                 let channel_and_message_ids = [];
@@ -929,8 +929,8 @@ async function extractInfoAndUpdateSheet(guildID, showLogging) {
                 }
 
                 const event_title = getEventTitle(event_message, showLogging);
-                console.log("Raw Event Message");
-                console.log(event_message);
+                //console.log("Raw Event Message");
+                //console.log(event_message);
                 const date_text = getEventDate(event_message, showLogging);
 
                 const sheet_name = date_text + ` | ` + event_title;
