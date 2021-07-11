@@ -660,7 +660,7 @@ function getEventTitle(eventMessage, showLogging) {
 }
 
 function getEventDate(event_message, showLogging) {
-    const date_field = event_message.embeds[0].fields[3]; // assuming date is always at this index (might be dumb)
+    const date_field = event_message.embeds[0].fields[0]; // assuming date is always at this index (might be dumb)
     
     console.log(`Date: ${date_field.value}`);
     if(showLogging)
