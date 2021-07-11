@@ -112,15 +112,16 @@ async function updateEventSheet(event_sheet, sign_up_order, raid_helper_reaction
     order_title_cell.textFormat = { bold: true };
 
     const order_spacer_cell = event_sheet.getCell(0, 1);
-    order_spacer_cell.value = "";
+    order_spacer_cell.value = "Name";
 
 
     const roles_title_cell = event_sheet.getCell(0, 2);
-    roles_title_cell.value = "Roles";
-    roles_title_cell.textFormat = { bold: true };
+    roles_title_cell.value = "Class";
+    
+    const class_title_cell = event_sheet.getCell(0, 3);
+    class_title_cell.value = "Roll";
 
-
-    const roles_spacer_cell = event_sheet.getCell(0, 3);
+    const roles_spacer_cell = event_sheet.getCell(0, 4);
     roles_spacer_cell.value = "";
 
 
@@ -132,7 +133,31 @@ async function updateEventSheet(event_sheet, sign_up_order, raid_helper_reaction
 
             const username_cell = event_sheet.getCell(sign_up, 1);
             username_cell.value = sign_up_order[sign_up][0];
-
+            
+            const class_cell =  event_sheet.getCell(sign_up, 2);
+            class_cell.value = sign_up_order[sign_up][1];
+            
+            const role_cell = event_sheet.getCell(sign_up, 3);
+            
+            // Determine the Roll
+            if(["Protection","Protection1","Guardian"].contains(sign_up_order[sign_up][1])) // Tanks / #C79C6E
+            {
+                role_cell.value = "Tank";
+            }
+            else if(["Restoration","Restoration1","Holy","Holy1","Discipline"].contains(sign_up_order[sign_up][1]))  //Healers
+            {
+                role_cell.value = "Healer";
+            }
+            else if(["Hunter","Mage","Warlock","Shadow","Elemental"].contains(sign_up_order[sign_up][1]))
+            {
+                role_cell.value = "DPS-Ranged";
+            }
+            else
+            {
+                role_cell.value = "DPS-Melee";
+            }
+        
+            // Original logic to color the cells based on class/role
             if(sign_up_order[sign_up][1] === "Protection" || sign_up_order[sign_up][1] === "Arms" || sign_up_order[sign_up][1] === "Fury") // warrior / #C79C6E
             {
                 username_cell.backgroundColor = {
@@ -249,291 +274,6 @@ async function updateEventSheet(event_sheet, sign_up_order, raid_helper_reaction
                     "blue": 0.537,
                     "alpha": 1.0
                 };
-            }
-        }
-    }
-    
-    // console.log(`Role signup data: ${JSON.stringify(role_sign_up_data, null, 2)}`);
-    
-    // console.log(`raid_helper_reactions: ${raid_helper_reactions}`);
-
-    for (let i = 0; i < raid_helper_reactions.length; i++) {
-        const role_title = event_sheet.getCell(1, i + 2);
-
-        const role_count_regex = /\(([^)]*)\)/g; // everything between `**[<find stuff here>]`
-
-        const role_count_match = regexFirstMatch(role_count_regex, role_title.value); // length 0 if nothing found
-
-        let role_count = 0;
-        let less = false;
-
-        if(role_count_match != null && role_count_match.length > 0)
-        {
-            role_count = parseInt(role_count_match[0]);
-
-            less = role_count > role_sign_up_data[raid_helper_reactions[i]].length;
-        }
-
-        if(less)
-        {
-            const difference = role_count - role_sign_up_data[raid_helper_reactions[i]].length;
-
-            for (let j = 2 + role_sign_up_data[raid_helper_reactions[i]].length + difference - 1; j > role_sign_up_data[raid_helper_reactions[i]].length + 1; j--) {
-                if (event_sheet != null) {
-                    const cell = event_sheet.getCell(j, i + 2);
-                    cell.value = "";
-                    cell.clearAllFormatting();
-                }
-            }
-        }
-
-        //console.log(raid_helper_reactions[i]);
-        role_title.value = raid_helper_reactions[i] + " (" + role_sign_up_data[raid_helper_reactions[i]].length + ")";
-        role_title.textFormat = { bold: true };
-
-        //console.log(`Colour: ${role_title}`);
-
-        if(raid_helper_reactions[i] === "Protection" || raid_helper_reactions[i] === "Arms" || raid_helper_reactions[i] === "Fury") // Warrior #C79C6E
-        {
-            role_title.backgroundColor = {
-                "red": 0.78,
-                "green": 0.612,
-                "blue": 0.431,
-                "alpha": 1.0
-            };
-        }
-        else if(raid_helper_reactions[i] === "Rogue") // #FFF569
-        {
-            role_title.backgroundColor = {
-                "red": 1.0,
-                "green": 0.961,
-                "blue": 0.412,
-                "alpha": 1.0
-            };
-        }
-        else if(raid_helper_reactions[i] === "Hunter") // #ABD473
-        {
-            role_title.backgroundColor = {
-                "red": 0.671,
-                "green": 0.831,
-                "blue": 0.451,
-                "alpha": 1.0
-            };
-        }
-        else if(raid_helper_reactions[i] === "Mage") // #69CCF0
-        {
-            role_title.backgroundColor = {
-                "red": 0.412,
-                "green": 0.8,
-                "blue": 0.941,
-                "alpha": 1.0
-            };
-        }
-        else if(raid_helper_reactions[i] === "Warlock") // #9482C9
-        {
-            role_title.backgroundColor = {
-                "red": 0.58,
-                "green": 0.51,
-                "blue": 0.788,
-                "alpha": 1.0
-            };
-        }
-        else if(raid_helper_reactions[i] === "Holy" || raid_helper_reactions[i] === "Discipline" ) // #FFFFFF
-        {
-            role_title.backgroundColor = {
-                "red": 1.0,
-                "green": 1.0,
-                "blue": 1.0,
-                "alpha": 1.0
-            };
-        }
-        else if(raid_helper_reactions[i] === "Shadow") // #FFFFFF
-        {
-            role_title.backgroundColor = {
-                "red": 1.0,
-                "green": 1.0,
-                "blue": 1.0,
-                "alpha": 1.0
-            };
-        }
-        else if(raid_helper_reactions[i] === "Restoration1" || raid_helper_reactions[i] === "Enhancement" || raid_helper_reactions[i] === "Elemental") // #0070DE
-        {
-            role_title.backgroundColor = {
-                "red": 0.0,
-                "green": 0.439,
-                "blue": 0.871,
-                "alpha": 1.0
-            };
-        }
-        else if(raid_helper_reactions[i] === "Restoration" || raid_helper_reactions[i] === "Guardian" || raid_helper_reactions[i] === "Feral" || raid_helper_reactions[i] === "Balance") // #FF7D0A
-        {
-            role_title.backgroundColor = {
-                "red": 1.0,
-                "green": 0.49,
-                "blue": 0.039,
-                "alpha": 1.0
-            };
-        }
-        else if(raid_helper_reactions[i] === "Late" || raid_helper_reactions[i] === "Holy1" || raid_helper_reactions[i] === "Retribution" || raid_helper_reactions[i] === "Protection1") // #F58CBA
-        {
-            role_title.backgroundColor = {
-                "red": 0.960,
-                "green": 0.549,
-                "blue": 0.729,
-                "alpha": 1.0
-            };
-        }
-        else if(raid_helper_reactions[i] === "Bench") // #A330C9
-        {
-            role_title.backgroundColor = {
-                "red": 0.639,
-                "green": 0.188,
-                "blue": 0.788,
-                "alpha": 1.0
-            };
-        }
-        else if(raid_helper_reactions[i] === "Tentative") // #00FF96
-        {
-            role_title.backgroundColor = {
-                "red": 0.0,
-                "green": 1.0,
-                "blue": 0.588,
-                "alpha": 1.0
-            };
-        }
-        else if(raid_helper_reactions[i] === "Absence") // #C41F3B
-        {
-            role_title.backgroundColor = {
-                "red": 0.768,
-                "green": 0.768,
-                "blue": 0.121,
-                "alpha": 1.0
-            };
-        }
-
-        for (let j = 0; j < role_sign_up_data[raid_helper_reactions[i]].length; j++) {
-            // console.log(`Cell: ${i}, ${j} - ${role_sign_up_data[raid_helper_reactions[i]][j]}`);
-            if (event_sheet != null) {
-                const cell = event_sheet.getCell(j + 2, i + 2);
-                cell.value = role_sign_up_data[raid_helper_reactions[i]][j][0];
-
-                if(raid_helper_reactions[i] === "Tank" || raid_helper_reactions[i] === "Warrior" || raid_helper_reactions[i] === "Arms" || raid_helper_reactions[i] === "Fury") // #C79C6E
-                {
-                    cell.backgroundColor = {
-                        "red": 0.898,
-                        "green": 0.823,
-                        "blue": 0.741,
-                        "alpha": 1.0
-                    };
-                }
-                else if(raid_helper_reactions[i] === "Rogue") // #FFF569
-                {
-                    cell.backgroundColor = {
-                        "red": 1.0,
-                        "green": 0.988,
-                        "blue": 0.8,
-                        "alpha": 1.0
-                    };
-                }
-                else if(raid_helper_reactions[i] === "Hunter") // #ABD473
-                {
-                    cell.backgroundColor = {
-                        "red": 0.870,
-                        "green": 0.933,
-                        "blue": 0.788,
-                        "alpha": 1.0
-                    };
-                }
-                else if(raid_helper_reactions[i] === "Mage") // #69CCF0
-                {
-                    cell.backgroundColor = {
-                        "red": 0.780,
-                        "green": 0.925,
-                        "blue": 0.980,
-                        "alpha": 1.0
-                    };
-                }
-                else if(raid_helper_reactions[i] === "Warlock") // #9482C9
-                {
-                    cell.backgroundColor = {
-                        "red": 0.831,
-                        "green": 0.803,
-                        "blue": 0.913,
-                        "alpha": 1.0
-                    };
-                }
-                else if(raid_helper_reactions[i] === "Holy" || raid_helper_reactions[i] === "Discipline") // #FFFFFF
-                {
-                    cell.backgroundColor = {
-                        "red": 1.0,
-                        "green": 1.0,
-                        "blue": 1.0,
-                        "alpha": 1.0
-                    };
-                }
-                else if(raid_helper_reactions[i] === "Shadow") // #FFFFFF
-                {
-                    cell.backgroundColor = {
-                        "red": 1.0,
-                        "green": 1.0,
-                        "blue": 1.0,
-                        "alpha": 1.0
-                    };
-                }
-                else if(raid_helper_reactions[i] === "Restoration1" || raid_helper_reactions[i] === "Enhancement" || raid_helper_reactions[i] === "Elemental") // #0070DE
-                {
-                    cell.backgroundColor = {
-                        "red": 0.701,
-                        "green": 0.850,
-                        "blue": 1.0,
-                        "alpha": 1.0
-                    };
-                }
-                else if(raid_helper_reactions[i] === "Restoration" || raid_helper_reactions[i] === "Guardian" || raid_helper_reactions[i] === "Feral" || raid_helper_reactions[i] === "Balance") // #FF7D0A
-                {
-                    cell.backgroundColor = {
-                        "red": 1.0,
-                        "green": 0.862,
-                        "blue": 0.741,
-                        "alpha": 1.0
-                    };
-                }
-                else if(raid_helper_reactions[i] === "Late" || raid_helper_reactions[i] === "Holy1" || raid_helper_reactions[i] === "Retribution" || raid_helper_reactions[i] === "Protection1") // #F58CBA
-                {
-                    cell.backgroundColor = {
-                        "red": 0.984,
-                        "green": 0.796,
-                        "blue": 0.878,
-                        "alpha": 1.0
-                    };
-                }
-                else if(raid_helper_reactions[i] === "Bench") // #A330C9
-                {
-                    cell.backgroundColor = {
-                        "red": 0.898,
-                        "green": 0.756,
-                        "blue": 0.941,
-                        "alpha": 1.0
-                    };
-                }
-                else if(raid_helper_reactions[i] === "Tentative") // #00FF96
-                {
-                    cell.backgroundColor = {
-                        "red": 0.741,
-                        "green": 1.0,
-                        "blue": 0.894,
-                        "alpha": 1.0
-                    };
-                }
-                else if(raid_helper_reactions[i] === "Absence") // #C41F3B
-                {
-                    cell.backgroundColor = {
-                        "red": 0.921,
-                        "green": 0.458,
-                        "blue": 0.537,
-                        "alpha": 1.0
-                    };
-                }
             }
         }
     }
