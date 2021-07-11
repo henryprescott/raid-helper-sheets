@@ -140,15 +140,15 @@ async function updateEventSheet(event_sheet, sign_up_order, raid_helper_reaction
             const role_cell = event_sheet.getCell(sign_up, 3);
             
             // Determine the Roll
-            if(["Protection","Protection1","Guardian"].contains(sign_up_order[sign_up][1])) // Tanks / #C79C6E
+            if(["Protection","Protection1","Guardian"].includes(sign_up_order[sign_up][1])) // Tanks / #C79C6E
             {
                 role_cell.value = "Tank";
             }
-            else if(["Restoration","Restoration1","Holy","Holy1","Discipline"].contains(sign_up_order[sign_up][1]))  //Healers
+            else if(["Restoration","Restoration1","Holy","Holy1","Discipline"].includes(sign_up_order[sign_up][1]))  //Healers
             {
                 role_cell.value = "Healer";
             }
-            else if(["Hunter","Mage","Warlock","Shadow","Elemental"].contains(sign_up_order[sign_up][1]))
+            else if(["Hunter","Mage","Warlock","Shadow","Elemental"].includes(sign_up_order[sign_up][1]))
             {
                 role_cell.value = "DPS-Ranged";
             }
