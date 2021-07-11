@@ -224,7 +224,7 @@ async function updateEventSheet(event_sheet, sign_up_order, raid_helper_reaction
                     "alpha": 1.0
                 };
             }
-            else if(sign_up_order[sign_up][1] === "Hunter" || sign_up_order[sign_up][1] === "Beastmaster" || sign_up_order[sign_up][1] === "Marksmanship" || sign_up_order[sign_up][1] === "Survival") // #a7d3a1
+            else if(sign_up_order[sign_up][1] === "Hunter" || sign_up_order[sign_up][1] === "Beastmastery" || sign_up_order[sign_up][1] === "Marksmanship" || sign_up_order[sign_up][1] === "Survival") // #a7d3a1
             {
                 username_cell.backgroundColor = {
                     "red": 0.6549,
