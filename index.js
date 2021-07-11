@@ -10,6 +10,47 @@ var schedule = require('node-schedule');
 const Discord = require("discord.js")
 const client = new Discord.Client({ partials: ['MESSAGE', 'CHANNEL', 'REACTION'] })
 
+let roleMapping = {};
+
+// order in which they appear in events
+roleMapping["Tank"] = ["Protection", "Protection1", "Guardian"];
+roleMapping["Warrior"] = ["Fury", "Arms"];
+roleMapping["Rogue"] = ["Combat", "Assassination", "Subtlety"];
+roleMapping["Hunter"] = ["Beastmastery", "Survival", "Marksmanship"];
+roleMapping["Mage"] = ["Fire", "Frost", "Arcane"];
+roleMapping["Warlock"] = ["Destruction", "Demonology", "Affliction"];
+roleMapping["Druid"] = ["Restoration", "Balance", "Feral"];
+roleMapping["Shaman"] = ["Elemental", "Enhancement", "Restoration1"];
+roleMapping["Priest"] = ["Holy", "Shadow", "Discipline"];
+roleMapping["Paladin"] = ["Holy1", "Retribution"];
+roleMapping["Late"] = ["Late"];
+roleMapping["Bench"] = ["Bench"];
+roleMapping["Tentative"] = ["Tentative"];
+roleMapping["Absence"] = ["Absence"];
+
+let classMapping = {};
+
+classMapping["Warrior"] = ["Protection","Fury", "Arms"];
+classMapping["Rogue"] = ["Combat", "Assassination", "Subtlety"];
+classMapping["Hunter"] = ["Beastmastery", "Survival", "Marksmanship"];
+classMapping["Mage"] = ["Fire", "Frost", "Arcane"];
+classMapping["Druid"] = ["Restoration", "Balance", "Feral", "Guardian"];
+classMapping["Shaman"] = ["Elemental", "Enhancement", "Restoration1"];
+classMapping["Priest"] = ["Holy", "Shadow", "Discipline"];
+classMapping["Paladin"] = ["Holy1", "Retribution", "Protection1"];
+classMapping["Late"] = ["Late"];
+classMapping["Bench"] = ["Bench"];
+classMapping["Tentative"] = ["Tentative"];
+classMapping["Absence"] = ["Absence"];
+
+function lookupClass(spec)
+{
+    for (let mappedClass in classMapping) {
+        if (classMapping[mappedClass].includes(spec)
+            return mappedClass;
+    }
+}
+
 client.on("ready",() => {
     console.log(`Logged in as ${client.user.tag}!`)
 })
@@ -134,12 +175,18 @@ async function updateEventSheet(event_sheet, sign_up_order, raid_helper_reaction
             const username_cell = event_sheet.getCell(sign_up, 1);
             username_cell.value = sign_up_order[sign_up][0];
             
-            const class_cell =  event_sheet.getCell(sign_up, 2);
-            class_cell.value = sign_up_order[sign_up][1];
+            const class_cell = event_sheet.getCell(sign_up, 2);
             
-            const role_cell = event_sheet.getCell(sign_up, 3);
             
-            // Determine the Roll
+            const spec_cell =  event_sheet.getCell(sign_up, 3);
+            spec_cell.value = sign_up_order[sign_up][1];
+            
+            const role_cell = event_sheet.getCell(sign_up, 4);
+            
+            // Determine the Class
+            class_cell.value = lookupClass(sign_up_order[sign_up][1]);
+            
+            // Determine the Roll.. needs some more refactoring.
             if(["Protection","Protection1","Guardian"].includes(sign_up_order[sign_up][1])) // Tanks / #C79C6E
             {
                 role_cell.value = "Tank";
@@ -415,50 +462,6 @@ function getEventDate(event_message, showLogging) {
 
     return date_text;
 }
-
-let roleMapping = {};
-
-// order in which they appear in event
-roleMapping["Tank"] = ["Protection", "Protection1", "Guardian"];
-roleMapping["Warrior"] = ["Fury", "Arms"];
-roleMapping["Rogue"] = ["Combat", "Assassination", "Subtlety"];
-roleMapping["Hunter"] = ["Beastmastery", "Survival", "Marksmanship"];
-roleMapping["Mage"] = ["Fire", "Frost", "Arcane"];
-roleMapping["Warlock"] = ["Destruction", "Demonology", "Affliction"];
-roleMapping["Druid"] = ["Restoration", "Balance", "Feral"];
-roleMapping["Shaman"] = ["Elemental", "Enhancement", "Restoration1"];
-roleMapping["Priest"] = ["Holy", "Shadow", "Discipline"];
-roleMapping["Paladin"] = ["Holy1", "Retribution"];
-roleMapping["Late"] = ["Late"];
-roleMapping["Bench"] = ["Bench"];
-roleMapping["Tentative"] = ["Tentative"];
-roleMapping["Absence"] = ["Absence"];
-
-// [
-// 'Tank',        'Warrior',
-//     'Rogue',       'Hunter',
-//     'Mage',        'Warlock',
-//     'Priest',      'Shadow',
-//     'RestoShaman', 'Enhancer',
-//     'Elemental',   'RestoDruid',
-//     'Bear',        'Feral',
-//     'Balance',     'Late',
-//     'Bench',       'Tentative',
-//     'Absence'
-// ]
-
-// [
-// 'Tank',        'Warrior',
-//     'Rogue',       'Hunter',
-//     'Mage',        'Warlock',
-//     'Priest',      'Shadow',
-//     'HolyPaladin', 'Retri',
-//     'ProtPaladin', 'RestoDruid',
-//     'Bear',        'Feral',
-//     'Balance',     'Late',
-//     'Bench',       'Tentative',
-//     'Absence'
-// ]
 
 function getEventData(event_message, raid_helper_reactions, showLogging) {
     // iterate through embed fields to extract role counts, order and populate above
