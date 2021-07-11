@@ -299,9 +299,9 @@ async function updateEventSheet(event_sheet, sign_up_order, raid_helper_reaction
             else if(sign_up_order[sign_up][1] === "Holy1" || sign_up_order[sign_up][1] === "Retribution" || sign_up_order[sign_up][1] === "Protection1") // #ffc2d2
             {
                 username_cell.backgroundColor = {
-                    "red": 0.984,
-                    "green": 0.796,
-                    "blue": 0.878,
+                    "red": 1,
+                    "green": 0.7608,
+                    "blue": 0.8235,
                     "alpha": 1.0
                 };
             }
