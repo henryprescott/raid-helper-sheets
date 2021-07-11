@@ -38,6 +38,7 @@ classMapping["Druid"] = ["Restoration", "Balance", "Feral", "Guardian"];
 classMapping["Shaman"] = ["Elemental", "Enhancement", "Restoration1"];
 classMapping["Priest"] = ["Holy", "Shadow", "Discipline"];
 classMapping["Paladin"] = ["Holy1", "Retribution", "Protection1"];
+classMapping["Warlock"] = ["Destruction", "Demonology", "Affliction"];
 classMapping["Late"] = ["Late"];
 classMapping["Bench"] = ["Bench"];
 classMapping["Tentative"] = ["Tentative"];
