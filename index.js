@@ -46,7 +46,7 @@ classMapping["Absence"] = ["Absence"];
 function lookupClass(spec)
 {
     for (let mappedClass in classMapping) {
-        if (classMapping[mappedClass].includes(spec)
+        if (classMapping[mappedClass].includes(spec))
             return mappedClass;
     }
 }
