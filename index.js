@@ -161,7 +161,7 @@ async function updateEventSheet(event_sheet, sign_up_order, raid_helper_reaction
     roles_title_cell.value = "Class";
     
     const class_title_cell = event_sheet.getCell(0, 3);
-    class_title_cell.value = "Roll";
+    class_title_cell.value = "Role";
 
     const roles_spacer_cell = event_sheet.getCell(0, 4);
     roles_spacer_cell.value = "";
@@ -187,7 +187,7 @@ async function updateEventSheet(event_sheet, sign_up_order, raid_helper_reaction
             // Determine the Class
             class_cell.value = lookupClass(sign_up_order[sign_up][1]);
             
-            // Determine the Roll.. needs some more refactoring.
+            // Determine the Role.. needs some more refactoring.
             if(["Protection","Protection1","Guardian"].includes(sign_up_order[sign_up][1])) // Tanks / #C79C6E
             {
                 role_cell.value = "Tank";
@@ -543,7 +543,6 @@ function getEventData(event_message, raid_helper_reactions, showLogging) {
                         let sign_up_info = [];
                         sign_up_info.push(signup_username_match);
                         sign_up_info.push(signup_order_match); // going to keep order just in case
-                        // console.log(class_match);
                         role_classes[class_match].push(sign_up_info);
 
                         let name_and_role = [];
@@ -653,6 +652,7 @@ async function userMessages(guildID, userID, showLogging){
             } catch (e) {
                 if(showLogging)
                     console.log("Could not grab message from " + channels[i].name + ", moving on.")
+                    console.log("Error " + e)
                 continue;
             }
         }
