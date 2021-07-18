@@ -97,10 +97,6 @@ async function checkEventSheetExists(sheetName) {
 
         try {
             for (let sheet in spreadsheet.sheetsByIndex) {
-                // const sheet = doc.sheetsByIndex[0]; // or use doc.sheetsById[id]
-                // console.log(doc.sheetsByIndex[sheet].title);
-                // console.log(doc.sheetsByIndex[sheet].rowCount);
-
                 if (spreadsheet.sheetsByIndex[sheet].title === sheetName) {
                     const found_sheet = spreadsheet.sheetsByIndex[sheet];
 
@@ -158,15 +154,8 @@ async function updateEventSheet(event_sheet, sign_up_order, raid_helper_reaction
 
 
     const roles_title_cell = event_sheet.getCell(0, 2);
-    roles_title_cell.value = "Class";
+    roles_title_cell.value = "Role";
     
-    const class_title_cell = event_sheet.getCell(0, 3);
-    class_title_cell.value = "Role";
-
-    const roles_spacer_cell = event_sheet.getCell(0, 4);
-    roles_spacer_cell.value = "";
-
-
     for (let sign_up in sign_up_order) {
         if (event_sheet != null) {
             // console.log(`sign_up: ${sign_up}`);
@@ -178,33 +167,39 @@ async function updateEventSheet(event_sheet, sign_up_order, raid_helper_reaction
             
             const class_cell = event_sheet.getCell(sign_up, 2);
             
-            
             const spec_cell =  event_sheet.getCell(sign_up, 3);
-            spec_cell.value = sign_up_order[sign_up][1];
+            const spec = sign_up_order[sign_up][1].replace("1", "");
             
             const role_cell = event_sheet.getCell(sign_up, 4);
             
             // Determine the Class
             class_cell.value = lookupClass(sign_up_order[sign_up][1]);
+	
+            
+            var role = "";
+
             
             // Determine the Role.. needs some more refactoring.
+
             if(["Protection","Protection1","Guardian"].includes(sign_up_order[sign_up][1])) // Tanks / #C79C6E
             {
-                role_cell.value = "Tank";
+                role = "Tank";
             }
             else if(["Restoration","Restoration1","Holy","Holy1","Discipline"].includes(sign_up_order[sign_up][1]))  //Healers
             {
-                role_cell.value = "Healer";
+                role = "Healer";
             }
             else if(["Hunter","Mage","Warlock","Shadow","Elemental"].includes(sign_up_order[sign_up][1]))
             {
-                role_cell.value = "DPS-Ranged";
+                role = "DPS-Ranged";
             }
             else
             {
-                role_cell.value = "DPS-Melee";
+                role = "DPS-Melee";
             }
         
+            class_cell.value = role + " (" + spec + ")";
+
             // Original logic to color the cells based on class/role
             if(sign_up_order[sign_up][1] === "Protection" || sign_up_order[sign_up][1] === "Arms" || sign_up_order[sign_up][1] === "Fury") // warrior / #ac937b
             {
