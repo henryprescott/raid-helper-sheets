@@ -159,37 +159,39 @@ async function updateEventSheet(event_sheet, sign_up_order, raid_helper_reaction
     for (let sign_up in sign_up_order) {
         if (event_sheet != null) {
             // console.log(`sign_up: ${sign_up}`);
+           
+            const currElement = sign_up_order[sign_up];
             const order_cell = event_sheet.getCell(sign_up, 0);
             order_cell.value = sign_up;
 
             const username_cell = event_sheet.getCell(sign_up, 1);
-            username_cell.value = sign_up_order[sign_up][0];
+            username_cell.value = currElement[0];
             
             const class_cell = event_sheet.getCell(sign_up, 2);
             
             const spec_cell =  event_sheet.getCell(sign_up, 3);
-            const spec = sign_up_order[sign_up][1].replace("1", "");
+            const spec = currElement[1].replace("1", "");
             
             const role_cell = event_sheet.getCell(sign_up, 4);
             
             // Determine the Class
-            class_cell.value = lookupClass(sign_up_order[sign_up][1]);
+            class_cell.value = lookupClass(currElement[1]);
 	
             
             var role = "";
-
+           
             
             // Determine the Role.. needs some more refactoring.
 
-            if(["Protection","Protection1","Guardian"].includes(sign_up_order[sign_up][1])) // Tanks / #C79C6E
+            if(["Protection","Protection1","Guardian"].includes(currElement[1])) // Tanks / #C79C6E
             {
                 role = "Tank";
             }
-            else if(["Restoration","Restoration1","Holy","Holy1","Discipline"].includes(sign_up_order[sign_up][1]))  //Healers
+            else if(["Restoration","Restoration1","Holy","Holy1","Discipline"].includes(currElement[1]))  //Healers
             {
                 role = "Healer";
             }
-            else if(["Hunter","Mage","Warlock","Shadow","Elemental"].includes(sign_up_order[sign_up][1]))
+            else if(["Hunter","Mage","Warlock","Shadow","Elemental"].includes(currElement[1]))
             {
                 role = "DPS-Ranged";
             }
@@ -201,7 +203,7 @@ async function updateEventSheet(event_sheet, sign_up_order, raid_helper_reaction
             class_cell.value = role + " (" + spec + ")";
 
             // Original logic to color the cells based on class/role
-            if(sign_up_order[sign_up][1] === "Protection" || sign_up_order[sign_up][1] === "Arms" || sign_up_order[sign_up][1] === "Fury") // warrior / #ac937b
+            if(currElement[1] === "Protection" || currElement[1] === "Arms" || currElement[1] === "Fury") // warrior / #ac937b
             {
                 username_cell.backgroundColor = {
                     "red": 0.6745,
@@ -210,7 +212,7 @@ async function updateEventSheet(event_sheet, sign_up_order, raid_helper_reaction
                     "alpha": 1.0
                 };
             }
-            else if(sign_up_order[sign_up][1] === "Rogue" || sign_up_order[sign_up][1] === "Assassination" || sign_up_order[sign_up][1] === "Combat" || sign_up_order[sign_up][1] === "Subtlety") // #FFF2af
+            else if(currElement[1] === "Rogue" || currElement[1] === "Assassination" || currElement[1] === "Combat" || currElement[1] === "Subtlety") // #FFF2af
             {
                 username_cell.backgroundColor = {
                     "red": 1.0,
@@ -219,7 +221,7 @@ async function updateEventSheet(event_sheet, sign_up_order, raid_helper_reaction
                     "alpha": 1.0
                 };
             }
-            else if(sign_up_order[sign_up][1] === "Hunter" || sign_up_order[sign_up][1] === "Beastmastery" || sign_up_order[sign_up][1] === "Marksmanship" || sign_up_order[sign_up][1] === "Survival") // #a7d3a1
+            else if(currElement[1] === "Hunter" || currElement[1] === "Beastmastery" || currElement[1] === "Marksmanship" || currElement[1] === "Survival") // #a7d3a1
             {
                 username_cell.backgroundColor = {
                     "red": 0.6549,
@@ -228,7 +230,7 @@ async function updateEventSheet(event_sheet, sign_up_order, raid_helper_reaction
                     "alpha": 1.0
                 };
             }
-            else if(sign_up_order[sign_up][1] === "Mage" || sign_up_order[sign_up][1] === "Arcane" || sign_up_order[sign_up][1] === "Frost" || sign_up_order[sign_up][1] === "Fire") // #7edfff
+            else if(currElement[1] === "Mage" || currElement[1] === "Arcane" || currElement[1] === "Frost" || currElement[1] === "Fire") // #7edfff
             {
                 username_cell.backgroundColor = {
                     "red": 0.4941,
@@ -237,7 +239,7 @@ async function updateEventSheet(event_sheet, sign_up_order, raid_helper_reaction
                     "alpha": 1.0
                 };
             }
-            else if(sign_up_order[sign_up][1] === "Warlock" || sign_up_order[sign_up][1] === "Demonology" || sign_up_order[sign_up][1] === "Destruction" || sign_up_order[sign_up][1] === "Affliction") // #a482e9
+            else if(currElement[1] === "Warlock" || currElement[1] === "Demonology" || currElement[1] === "Destruction" || currElement[1] === "Affliction") // #a482e9
             {
                 username_cell.backgroundColor = {
                     "red": 0.6431,
@@ -246,7 +248,7 @@ async function updateEventSheet(event_sheet, sign_up_order, raid_helper_reaction
                     "alpha": 1.0
                 };
             }
-            else if(sign_up_order[sign_up][1] === "Priest" || sign_up_order[sign_up][1] === "Holy" || sign_up_order[sign_up][1] === "Discipline") // #f2e0f6
+            else if(currElement[1] === "Priest" || currElement[1] === "Holy" || currElement[1] === "Discipline") // #f2e0f6
             {
                 username_cell.backgroundColor = {
                     "red": 0.949,
@@ -255,7 +257,7 @@ async function updateEventSheet(event_sheet, sign_up_order, raid_helper_reaction
                     "alpha": 1.0
                 };
             }
-            else if(sign_up_order[sign_up][1] === "Shadow") // #f2e0f6
+            else if(currElement[1] === "Shadow") // #f2e0f6
             {
                 username_cell.backgroundColor = {
                     "red": 0.949,
@@ -264,7 +266,7 @@ async function updateEventSheet(event_sheet, sign_up_order, raid_helper_reaction
                     "alpha": 1.0
                 };
             }
-            else if(sign_up_order[sign_up][1] === "Restoration1" || sign_up_order[sign_up][1] === "Enhancement" || sign_up_order[sign_up][1] === "Elemental") // #4b91e7
+            else if(currElement[1] === "Restoration1" || currElement[1] === "Enhancement" || currElement[1] === "Elemental") // #4b91e7
             {
                 username_cell.backgroundColor = {
                     "red": 0.2941,
@@ -273,7 +275,7 @@ async function updateEventSheet(event_sheet, sign_up_order, raid_helper_reaction
                     "alpha": 1.0
                 };
             }
-            else if(sign_up_order[sign_up][1] === "Restoration" || sign_up_order[sign_up][1] === "Guardian" || sign_up_order[sign_up][1] === "Feral" || sign_up_order[sign_up][1] === "Balance") // #faab6f
+            else if(currElement[1] === "Restoration" || currElement[1] === "Guardian" || currElement[1] === "Feral" || currElement[1] === "Balance") // #faab6f
             {
                 username_cell.backgroundColor = {
                     "red": 0.9804,
@@ -282,7 +284,7 @@ async function updateEventSheet(event_sheet, sign_up_order, raid_helper_reaction
                     "alpha": 1.0
                 };
             }
-            else if(sign_up_order[sign_up][1] === "Late") // #99cc33
+            else if(currElement[1] === "Late") // #99cc33
             {
                 username_cell.backgroundColor = {
                     "red": 0.6,
@@ -291,7 +293,7 @@ async function updateEventSheet(event_sheet, sign_up_order, raid_helper_reaction
                     "alpha": 1.0
                 };
             }
-            else if(sign_up_order[sign_up][1] === "Holy1" || sign_up_order[sign_up][1] === "Retribution" || sign_up_order[sign_up][1] === "Protection1") // #ffc2d2
+            else if(currElement[1] === "Holy1" || currElement[1] === "Retribution" || currElement[1] === "Protection1") // #ffc2d2
             {
                 username_cell.backgroundColor = {
                     "red": 1,
@@ -300,7 +302,7 @@ async function updateEventSheet(event_sheet, sign_up_order, raid_helper_reaction
                     "alpha": 1.0
                 };
             }
-            else if(sign_up_order[sign_up][1] === "Bench") // #339900
+            else if(currElement[1] === "Bench") // #339900
             {
                 username_cell.backgroundColor = {
                     "red": 0.2,
@@ -309,7 +311,7 @@ async function updateEventSheet(event_sheet, sign_up_order, raid_helper_reaction
                     "alpha": 1.0
                 };
             }
-            else if(sign_up_order[sign_up][1] === "Tentative") // #ffcc00
+            else if(currElement[1] === "Tentative") // #ffcc00
             {
                 username_cell.backgroundColor = {
                     "red": 1.0,
@@ -318,7 +320,7 @@ async function updateEventSheet(event_sheet, sign_up_order, raid_helper_reaction
                     "alpha": 1.0
                 };
             }
-            else if(sign_up_order[sign_up][1] === "Absence") // #cc3300
+            else if(currElement[1] === "Absence") // #cc3300
             {
                 username_cell.backgroundColor = {
                     "red": 0.8,
