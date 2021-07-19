@@ -191,7 +191,7 @@ async function updateEventSheet(event_sheet, sign_up_order, raid_helper_reaction
             {
                 role = "Healer";
             }
-            else if(["Hunter","Mage","Warlock","Shadow","Elemental"].includes(roleName))
+            else if(["Hunter","Mage","Warlock","Shadow","Elemental","Balance"].includes(roleName))
             {
                 role = "DPS-Ranged";
             }
