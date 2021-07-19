@@ -179,19 +179,19 @@ async function updateEventSheet(event_sheet, sign_up_order, raid_helper_reaction
 	
             
             var role = "";
-           
             
+            var roleName = currElement.length > 2 ? currElement[2] : currElement[1];
             // Determine the Role.. needs some more refactoring.
 
-            if(["Protection","Protection1","Guardian"].includes(currElement[1])) // Tanks / #C79C6E
+            if(["Protection","Protection1","Guardian"].includes(roleName)) // Tanks / #C79C6E
             {
                 role = "Tank";
             }
-            else if(["Restoration","Restoration1","Holy","Holy1","Discipline"].includes(currElement[1]))  //Healers
+            else if(["Restoration","Restoration1","Holy","Holy1","Discipline"].includes(roleName))  //Healers
             {
                 role = "Healer";
             }
-            else if(["Hunter","Mage","Warlock","Shadow","Elemental"].includes(currElement[1]))
+            else if(["Hunter","Mage","Warlock","Shadow","Elemental"].includes(roleName))
             {
                 role = "DPS-Ranged";
             }
@@ -199,8 +199,13 @@ async function updateEventSheet(event_sheet, sign_up_order, raid_helper_reaction
             {
                 role = "DPS-Melee";
             }
+           if(currElement.length > 2){
+               class_cell.value = currElement[1] + " - " + role + " ( " + currElement[2] + " )";
+            } else{
+               class_cell.value = role + " (" + spec + ")";
+
+            }
         
-            class_cell.value = role + " (" + spec + ")";
 
             // Original logic to color the cells based on class/role
             if(currElement[1] === "Protection" || currElement[1] === "Arms" || currElement[1] === "Fury") // warrior / #ac937b
@@ -525,17 +530,17 @@ function getEventData(event_message, raid_helper_reactions, showLogging) {
 
                 for (let sign_up in raw_role_data) {
 
-                    const raw_role_pattern = /^<:(?<role>[a-zA-Z0-9]+):[0-9]+>\s(?:[a-zA-Z0-9]+\s\([0-9]+\)\s:\s<:(?<realRole>[a-zA-Z0-9]+):[0-9]+>\s)?`(?<num>[0-9]+)`\s\*\*(?<name>.*)\*\*/g;
+                    const raw_role_pattern = /<:(?<role>[a-zA-Z0-9]+):[0-9]+>\s(?:[a-zA-Z0-9]+\s\([0-9]+\)\s+:\s+(<:(?<realRole>[a-zA-Z0-9]+):[0-9]+>\s+)?)?\s*`(?<num>[0-9]+)`\s\*\*(?<name>.*)\*\*/g;
                     const match = raw_role_pattern.exec(raw_role_data[sign_up]);
-                    if(role === "Late" || role === "Bench" || role === "Tentative" || role === "Absence") {
-                        class_match = role;
-                    }
 
                     if(match){
                         let sign_up_info = [];
                         const signup_username_match = match.groups.name;
                         const signup_order_match = match.groups.num;
-                        const class_match = match.groups.role;
+                        var class_match = match.groups.role;
+                       if(role === "Late" || role === "Bench" || role === "Tentative" || role === "Absence") {
+                           class_match = role;
+                       }
                         sign_up_info.push(signup_username_match);
                         sign_up_info.push(signup_order_match); // going to keep order just in case
                         role_classes[class_match].push(sign_up_info);
@@ -551,7 +556,7 @@ function getEventData(event_message, raid_helper_reactions, showLogging) {
                         // map sign up order to username
                         sign_up_order[signup_order_match] = name_and_role;
                     } else{
-                        console.err("Unable to process " + raw_role_data[sign_up]);
+                        console.error("Unable to process " + raw_role_data[sign_up]);
                     }
                 }
 
@@ -663,7 +668,6 @@ async function userMessages(guildID, userID, showLogging){
         return event_message_ids;
     } catch (e) {
         console.error(e);
-        console.log(`Failed to get channels available.`)
         return [];
     }
 }
