@@ -522,20 +522,18 @@ function getEventData(event_message, raid_helper_reactions, showLogging) {
                 }
 
                 for (let sign_up in raw_role_data) {
-                    const class_regex = /\:(.*?)\:/gm; // everything between :<find stuff here>:
-                    const sign_up_order_regex = /\`{1}(.*?)\`{1}/gm; // everything between ``<find stuff here>``
-                    const username_regex = /\*{2}(.*?)\*{2}/gm; // everything between **<find stuff here>**
 
-                    let class_match = regexFirstMatch(class_regex, raw_role_data[sign_up]); // null if nothing found
-                    const signup_order_match = regexFirstMatch(sign_up_order_regex, raw_role_data[sign_up]); // null if nothing found
-                    const signup_username_match = regexFirstMatch(username_regex, raw_role_data[sign_up]); // null if nothing found
-
+                    const raw_role_pattern = /^<:(?<role>[a-zA-Z0-9]+):[0-9]+>\s(?:[a-zA-Z0-9]+\s\([0-9]+\)\s:\s<:(?<realRole>[a-zA-Z0-9]+):[0-9]+>\s)?`(?<num>[0-9]+)`\s\*\*(?<name>.*)\*\*/g;
+                    const match = raw_role_pattern.exec(raw_role_data[sign_up]);
                     if(role === "Late" || role === "Bench" || role === "Tentative" || role === "Absence") {
                         class_match = role;
                     }
 
-                    if (class_match != null && signup_order_match != null && signup_username_match != null) {
+                    if(match){
                         let sign_up_info = [];
+                        const signup_username_match = match.groups.name;
+                        const signup_order_match = match.groups.num;
+                        const class_match = match.groups.role;
                         sign_up_info.push(signup_username_match);
                         sign_up_info.push(signup_order_match); // going to keep order just in case
                         role_classes[class_match].push(sign_up_info);
@@ -544,9 +542,14 @@ function getEventData(event_message, raid_helper_reactions, showLogging) {
 
                         name_and_role.push(signup_username_match);
                         name_and_role.push(class_match);
+                        if(match.groups.realRole){
+                            name_and_role.push(match.groups.realRole);
+                        }
 
                         // map sign up order to username
                         sign_up_order[signup_order_match] = name_and_role;
+                    } else{
+                        console.err("Unable to process " + raw_role_data[sign_up]);
                     }
                 }
 
@@ -678,7 +681,7 @@ async function extractInfoAndUpdateSheet(guildID, showLogging) {
 
                 const event_title = getEventTitle(event_message, showLogging);
                 //console.log("Raw Event Message");
-                //console.log(event_message);
+                console.log(event_message);
                 const date_text = getEventDate(event_message, showLogging);
 
                 const sheet_name = date_text + ` | ` + event_title;
