@@ -10,9 +10,13 @@ The idea behind this project is to piggyback onto Raid Helper - "a feature-rich 
 
 Raid Helper has a ton  of useful features that can already track attendance and more.  However, by linking the events information to a Google Sheet there is great opportunity to add and customise further organisational tools in a more accessible format.
 
+Originally Developed by @Henryprescott
+Subsequent Development by @ZeroInitiative, @Industrial-Peons
+
+
 # Heroku settings
 
-Appears to run fine on a free account.  There is no UI. so set as a worker dyno instead of a web dyno.
+You can try this out on a free account however with latest Heroku metering changes I've found that it might not run for an entire month- like maybe 3 1&2 weeks before it's out of credits for how I was using it.  you may want to purchase the most basic Heroku package to get it over the hump.  There is no UI. so set as a worker dyno instead of a web dyno.
 
 # Environment variables
 
