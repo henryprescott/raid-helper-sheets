@@ -14,13 +14,42 @@ Originally Developed by @Henryprescott
 Subsequent Development by @ZeroInitiative, @Industrial-Peons
 
 
-# Heroku settings
+# Installation on Heroku
 
-You can try this out on a free account however with the free tier (550 hours for anonymous) you need to add/verify a credit card to get it to (1000 hours) to get it to run continuously through the month. 
+Before going to Heroku, make sure you have an Account in Github and Click on the 'Fork' button in the upper right of the project.  Go through the steps to setup a github clone of this project under your github account.
 
-There is no UI. so set as a worker dyno instead of a web dyno within Heroku.
+You'll now need a Heroku account.  Go ahead and create one if you don't already and associate it with your github as a Third Party Service under your account settings > applications.
+
+Within Heroko you want to create an app.  it can be named anything.  You don't need to add this to a pipeline. For deployment select 'GitHub' and you should see your github account. just click 'search' and then click 'connect' next to 'raid-helper-sheets' from the list (you just forked this into your github account right?)
+
+click 'Enable Automatic Deploys'.
+
+You can try this out on a free account however with the free tier (550 hours for anonymous) you need to add/verify a credit card to get it to (1000 hours) to get it to run continuously through the month so you may want to add your credit card to heroku if you want it run without stopping.. otherwise it will pause after the 23rd day of the month.
+
+Updating- all you need to do is go back into github and pull any updates i've got into your fork and heroku which is watching your branch will automatically update/deploy the new version for you.
+
+# Discord Permissions
+
+through the discord developer portal you should generate an OAUTH authentication token with the following enabled:
+
+* read messages
+
+* list message history
+
+* delete messages
+
+you'll need this for the environment Variables.
+
+# Google Sheets
+
+Well you need a Google Sheet that you want this to send data to.  Open your google sheets project and note the value after  "/edit#gid=" in your browser. you'll need this for configuration.
+
+# Google Cloud Console
+
+You'll also need to go into the google google cloud console and create a google service account that has access to your Sheet to do the things it needs to do.  go to https://console.cloud.google.com/apis/dashboard with your google account.. if you don't have a project then create one and select it.  Go to the Service Accounts section: https://console.cloud.google.com/iam-admin/serviceaccounts .  Create a new service account..Name it anything you want.. Create and Continue.. 
 
 # Environment variables
+You pretty much need to set the following environment variables for this app to be of any use to you!.  If you're using Heroku, click Settings tab within your App that you deployed for this and click 'Reveal Config Vars' in the Config Vars section.  You'll need to add the following KEYS exactly as shown and then key in your values for those keys.
 
 GOOGLE_SPREADSHEET_ID
 
@@ -44,15 +73,6 @@ Csv list of Roles that have accesss to the application that need to match your a
 
 Which will grant users with (Admin) or users with (Guild OFficer) access to use the bot.
 
-# Discord Permissions
-
-through the discord developer portal you should generate an OAUTH authentication token with the following enabled:
-
-read messages
-
-list message history
-
-delete messages
 
 # Bot Commands
 
