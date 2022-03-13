@@ -1,6 +1,6 @@
 {
   "name": "raid-helper-sheets",
-  "version": "1.0.0",
+  "version": "1.1.0",
   "description": "[If you don't know about Raid Helper, check it out.  It's amazing!](https://raid-helper.com/index)",
   "main": "index.js",
   "scripts": {
@@ -23,10 +23,10 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/industrial-peons/raid-helper-sheets.git"
+    "url": "git+https://github.com/zeroinitiative2/raid-helper-sheets.git"
   },
   "bugs": {
-    "url": "https://github.com/industrial-peons/raid-helper-sheets/issues"
+    "url": "https://github.com/zeroinitiative2/raid-helper-sheets/issues"
   },
-  "homepage": "https://github.com/industrial-peons/raid-helper-sheets#readme"
+  "homepage": "https://github.com/zeroinitiative2/raid-helper-sheets#readme"
 }
