@@ -1,7 +1,7 @@
 {
   "name": "raid-helper-sheets",
   "version": "1.0.0",
-  "description": "",
+  "description": "[If you don't know about Raid Helper, check it out.  It's amazing!](https://raid-helper.com/index)",
   "main": "index.js",
   "scripts": {
     "start": "node index.js",
@@ -11,12 +11,22 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
+    "discord": "^0.8.2",
     "discord.js": "^12.4.1",
-    "dotenv": "^8.2.0",
-    "google-spreadsheet": "^3.0.13",
-    "node-schedule": "^1.3.2"
+    "dotenv": "^8.6.0",
+    "google-spreadsheet": "^3.1.15",
+    "node": "^16.5.0",
+    "node-schedule": "^1.3.3"
   },
   "devDependencies": {
     "nodemon": "^2.0.6"
-  }
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/industrial-peons/raid-helper-sheets.git"
+  },
+  "bugs": {
+    "url": "https://github.com/industrial-peons/raid-helper-sheets/issues"
+  },
+  "homepage": "https://github.com/industrial-peons/raid-helper-sheets#readme"
 }
