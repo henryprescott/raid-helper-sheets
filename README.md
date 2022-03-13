@@ -16,7 +16,7 @@ Subsequent Development by @ZeroInitiative, @Industrial-Peons
 
 # Heroku settings
 
-You can try this out on a free account however with latest Heroku metering changes I've found that it might not run for an entire month- like maybe 3 1&2 weeks before it's out of credits for how I was using it.  you may want to purchase the most basic Heroku package to get it over the hump.  There is no UI. so set as a worker dyno instead of a web dyno.
+You can try this out on a free account however with the free tier (550 hours for anonymous) you need to add/verify a credit card to get it to (1000 hours) to get it to run continuously through the month. There is no UI. so set as a worker dyno instead of a web dyno within Heroku.
 
 # Environment variables
 
