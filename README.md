@@ -16,7 +16,9 @@ Subsequent Development by @ZeroInitiative, @Industrial-Peons
 
 # Heroku settings
 
-You can try this out on a free account however with the free tier (550 hours for anonymous) you need to add/verify a credit card to get it to (1000 hours) to get it to run continuously through the month. There is no UI. so set as a worker dyno instead of a web dyno within Heroku.
+You can try this out on a free account however with the free tier (550 hours for anonymous) you need to add/verify a credit card to get it to (1000 hours) to get it to run continuously through the month. 
+
+There is no UI. so set as a worker dyno instead of a web dyno within Heroku.
 
 # Environment variables
 
