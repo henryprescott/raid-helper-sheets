@@ -885,3 +885,5 @@ schedule.scheduleJob('*/15 * * * *', async function(){  // this for one hour
         console.log("Failed scheduled task.")
     }
 });
+
+await autoTask();
