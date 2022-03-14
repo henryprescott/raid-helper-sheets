@@ -459,6 +459,9 @@ function getEventTitle(eventMessage, showLogging) {
 }
 
 function getEventDate(event_message, showLogging) {
+    const month = ["January","February","March","April","May","June","July","August","September","October","November","December"];
+    const weekday = ["Sun","Mon","Tue","Wed","Thu","Fri","Sat"];
+    
     const date_field = event_message.embeds[0].fields[0]; // assuming date is always at this index (might be dumb)
     
     console.log(`Date: ${date_field.value}`);
@@ -467,10 +470,20 @@ function getEventDate(event_message, showLogging) {
 
     const date_text_regex = /\*{2}\[(.*?)\]/gm; // everything between `**[<find stuff here>]`
 
-    const date_text = regexFirstMatch(date_text_regex, date_field.value); // length 0 if nothing found
+    let date_text = regexFirstMatch(date_text_regex, date_field.value); // length 0 if nothing found
+	
+    // handling a different format of <:CMcalendar:592462264670617641> <t:1647576000:D>
+    if(date_text === null) {
+	    const date_ts_regex = "/<t:(.*?):D>/gm";
+	    let date_ts = regexFirstMatch(date_ts_regex, date_field.value);
+	    let this_date = new Date();
+	    this_date.setTime(date_ts*1000);
+	    date_text = weekday[this_date.getDay()] + ' ' + this_date.getDate() + ' ' + month[this_date.getMonth()];
+    }
 
-    if(showLogging)
+    if(showLogging) {
         console.log(`Date Text: ${date_text}`);
+    }
 
     return date_text;
 }
