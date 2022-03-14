@@ -474,7 +474,7 @@ function getEventDate(event_message, showLogging) {
 	
     // handling a different format of <:CMcalendar:592462264670617641> <t:1647576000:D>
     if(date_text === null) {
-	    const date_ts_regex = "/<t:(.*?):D>/gm";
+	    const date_ts_regex = /<t:(.*?):D>/gm;
 	    let date_ts = regexFirstMatch(date_ts_regex, date_field.value);
 	    let this_date = new Date();
 	    this_date.setTime(date_ts*1000);
