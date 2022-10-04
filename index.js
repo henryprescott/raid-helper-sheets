@@ -14,6 +14,48 @@ const { title } = require('process');
 const { measureMemory } = require('vm');
 const client = new Discord.Client({ partials: ['MESSAGE', 'CHANNEL', 'REACTION'] })
 
+let roleMapping = {};
+
+// order in which they appear in events
+roleMapping["Tank"] = ["Protection", "Protection1", "Guardian"];
+roleMapping["Warrior"] = ["Fury", "Arms"];
+roleMapping["Rogue"] = ["Combat", "Assassination", "Subtlety"];
+roleMapping["Hunter"] = ["Beastmastery", "Survival", "Marksmanship"];
+roleMapping["Mage"] = ["Fire", "Frost", "Arcane"];
+roleMapping["Warlock"] = ["Destruction", "Demonology", "Affliction"];
+roleMapping["Druid"] = ["Restoration", "Balance", "Feral"];
+roleMapping["Shaman"] = ["Elemental", "Enhancement", "Restoration1"];
+roleMapping["Priest"] = ["Holy", "Shadow", "Discipline"];
+roleMapping["Paladin"] = ["Holy1", "Retribution"];
+roleMapping["Late"] = ["Late"];
+roleMapping["Bench"] = ["Bench"];
+roleMapping["Tentative"] = ["Tentative"];
+roleMapping["Absence"] = ["Absence"];
+
+let classMapping = {};
+
+classMapping["Warrior"] = ["Protection","Fury", "Arms"];
+classMapping["Rogue"] = ["Combat", "Assassination", "Subtlety"];
+classMapping["Hunter"] = ["Beastmastery", "Survival", "Marksmanship"];
+classMapping["Mage"] = ["Fire", "Frost", "Arcane"];
+classMapping["Druid"] = ["Restoration", "Balance", "Feral", "Guardian"];
+classMapping["Shaman"] = ["Elemental", "Enhancement", "Restoration1"];
+classMapping["Priest"] = ["Holy", "Shadow", "Discipline"];
+classMapping["Paladin"] = ["Holy1", "Retribution", "Protection1"];
+classMapping["Warlock"] = ["Destruction", "Demonology", "Affliction"];
+classMapping["Late"] = ["Late"];
+classMapping["Bench"] = ["Bench"];
+classMapping["Tentative"] = ["Tentative"];
+classMapping["Absence"] = ["Absence"];
+
+function lookupClass(spec)
+{
+    for (let mappedClass in classMapping) {
+        if (classMapping[mappedClass].includes(spec))
+            return mappedClass;
+    }
+}
+
 client.on("ready",() => {
     console.log(`Logged in as ${client.user.tag}!`)
     console.log(process.env.GOOGLE_SPREADSHEET_ID);
@@ -45,19 +87,23 @@ async function getSpreadSheet(spreadsheetID) {
             private_key: process.env.GOOGLE_PRIVATE_KEY.replace(/\\n/gm, '\n')
         });
     } catch (e) {
+        console.error(e);
         console.log("Google Sheets auth failed");
     }
 
     try {
         await spreadsheet.loadInfo(); // loads document properties and worksheets
     } catch (e) {
-        console.log("Failed to load Google Sheet Info.")
+        console.error(e);
+        console.log("Failed to load Google Sheet Info.");
     }
 
     return spreadsheet;
 }
 
-const range_of_cells_to_load = 'A1:Z100';
+const range_of_cells_to_load = { // GridRange object
+  startRowIndex: 0, endRowIndex: 100, startColumnIndex:0, endColumnIndex: 40
+};
 
 async function checkEventSheetExists(sheetName) {
     try {
@@ -65,10 +111,6 @@ async function checkEventSheetExists(sheetName) {
         
         try {
             for (let sheet in spreadsheet.sheetsByIndex) {
-                //const sheet = use doc.sheetsByIndex[0]; // or use doc.sheetsById[id] 
-                console.log(spreadsheet.sheetsByIndex[sheet].title);
-                // console.log(doc.sheetsByIndex[sheet].rowCount);
-
                 if (spreadsheet.sheetsByIndex[sheet].title === sheetName) {
                     const found_sheet = spreadsheet.sheetsByIndex[sheet];
 
@@ -78,10 +120,12 @@ async function checkEventSheetExists(sheetName) {
                 }
             }
         } catch (e) {
-            console.log("Failed to find test sheet and load cells.")
+            console.error(e);
+            console.log("Failed to find test sheet and load cells.");
         }
     } catch (e) {
-        console.log("Failed to get Google Sheet.")
+        console.error(e);
+        console.log("Failed to get Google Sheet.");
     }
 
     return null;
@@ -103,9 +147,11 @@ async function createEventSheet(sheetName, showLogging) {
 
             return new_sheet;
         } catch (e) {
+            console.error(e);
             console.log(`Failed to create new sheet: ${sheetName}.`);
         }
     } catch (e) {
+        console.error(e);
         console.log("Failed to get Google Sheet.");
     }
 
@@ -119,425 +165,180 @@ async function updateEventSheet(event_sheet, sign_up_order, raid_helper_reaction
     order_title_cell.textFormat = { bold: true };
 
     const order_spacer_cell = event_sheet.getCell(0, 1);
-    order_spacer_cell.value = "";
-
-    const empty_spacer_cell = event_sheet.getCell(0, 2);
-    empty_spacer_cell.value = "";
-
-    const roles_title_cell = event_sheet.getCell(0, 3);
-    roles_title_cell.value = "Roles";
-    roles_title_cell.textFormat = { bold: true };
+    order_spacer_cell.value = "Name";
 
 
-    const roles_spacer_cell = event_sheet.getCell(0, 4);
-    roles_spacer_cell.value = "";
-
-
+    const roles_title_cell = event_sheet.getCell(0, 2);
+    roles_title_cell.value = "Role";
+    
     for (let sign_up in sign_up_order) {
         if (event_sheet != null) {
             // console.log(`sign_up: ${sign_up}`);
+           
+            const currElement = sign_up_order[sign_up];
             const order_cell = event_sheet.getCell(sign_up, 0);
             order_cell.value = sign_up;
 
             const username_cell = event_sheet.getCell(sign_up, 1);
-            username_cell.value = sign_up_order[sign_up][0];
+            username_cell.value = currElement[0];
+            
+            const class_cell = event_sheet.getCell(sign_up, 2);
+            
+            const spec_cell =  event_sheet.getCell(sign_up, 3);
+            const spec = currElement[1].replace("1", "");
+            
+            const role_cell = event_sheet.getCell(sign_up, 4);
+            
+            // Determine the Class
+            class_cell.value = lookupClass(currElement[1]);
+	
+            
+            var role = "";
+            
+            var roleName = currElement.length > 2 ? currElement[2] : currElement[1];
+            // Determine the Role.. needs some more refactoring.
 
-            if(sign_up_order[sign_up][1] === "Tank" || sign_up_order[sign_up][1] === "Warrior") // #C79C6E
+            if(["Protection","Protection1","Guardian"].includes(roleName)) // Tanks / #C79C6E
+            {
+                role = "Tank";
+            }
+            else if(["Restoration","Restoration1","Holy","Holy1","Discipline"].includes(roleName))  //Healers
+            {
+                role = "Healer";
+            }
+            else if(["Hunter","Mage","Warlock","Shadow","Elemental","Balance"].includes(roleName))
+            {
+                role = "DPS-Ranged";
+            }
+            else
+            {
+                role = "DPS-Melee";
+            }
+           if(currElement.length > 2){
+               class_cell.value = currElement[1] + " - " + role + " ( " + currElement[2] + " )";
+            } else{
+               class_cell.value = role + " (" + spec + ")";
+
+            }
+        
+
+            // Original logic to color the cells based on class/role
+            if(currElement[1] === "Protection" || currElement[1] === "Arms" || currElement[1] === "Fury") // warrior / #ac937b
             {
                 username_cell.backgroundColor = {
-                    "red": 0.898,
-                    "green": 0.823,
-                    "blue": 0.741,
+                    "red": 0.6745,
+                    "green": 0.5765,
+                    "blue": 0.4824,
                     "alpha": 1.0
                 };
             }
-            else if(sign_up_order[sign_up][1] === "Rogue") // #FFF569
+            else if(currElement[1] === "Rogue" || currElement[1] === "Assassination" || currElement[1] === "Combat" || currElement[1] === "Subtlety") // #FFF2af
             {
                 username_cell.backgroundColor = {
                     "red": 1.0,
-                    "green": 0.988,
-                    "blue": 0.8,
+                    "green": 0.949,
+                    "blue": 0.6863,
                     "alpha": 1.0
                 };
             }
-            else if(sign_up_order[sign_up][1] === "Hunter") // #ABD473
+            else if(currElement[1] === "Hunter" || currElement[1] === "Beastmastery" || currElement[1] === "Marksmanship" || currElement[1] === "Survival") // #a7d3a1
             {
                 username_cell.backgroundColor = {
-                    "red": 0.870,
-                    "green": 0.933,
-                    "blue": 0.788,
+                    "red": 0.6549,
+                    "green": 0.8275,
+                    "blue": 0.6314,
                     "alpha": 1.0
                 };
             }
-            else if(sign_up_order[sign_up][1] === "Mage") // #69CCF0
+            else if(currElement[1] === "Mage" || currElement[1] === "Arcane" || currElement[1] === "Frost" || currElement[1] === "Fire") // #7edfff
             {
                 username_cell.backgroundColor = {
-                    "red": 0.780,
-                    "green": 0.925,
-                    "blue": 0.980,
-                    "alpha": 1.0
-                };
-            }
-            else if(sign_up_order[sign_up][1] === "Warlock") // #9482C9
-            {
-                username_cell.backgroundColor = {
-                    "red": 0.831,
-                    "green": 0.803,
-                    "blue": 0.913,
-                    "alpha": 1.0
-                };
-            }
-            else if(sign_up_order[sign_up][1] === "Priest") // #FFFFFF
-            {
-                username_cell.backgroundColor = {
-                    "red": 1.0,
-                    "green": 1.0,
+                    "red": 0.4941,
+                    "green": 0.8745,
                     "blue": 1.0,
                     "alpha": 1.0
                 };
             }
-            else if(sign_up_order[sign_up][1] === "Shadow") // #FFFFFF
+            else if(currElement[1] === "Warlock" || currElement[1] === "Demonology" || currElement[1] === "Destruction" || currElement[1] === "Affliction") // #a482e9
+            {
+                username_cell.backgroundColor = {
+                    "red": 0.6431,
+                    "green": 0.5098,
+                    "blue": 0.9137,
+                    "alpha": 1.0
+                };
+            }
+            else if(currElement[1] === "Priest" || currElement[1] === "Holy" || currElement[1] === "Discipline") // #f2e0f6
+            {
+                username_cell.backgroundColor = {
+                    "red": 0.949,
+                    "green": 0.8784,
+                    "blue": 0.9647,
+                    "alpha": 1.0
+                };
+            }
+            else if(currElement[1] === "Shadow") // #f2e0f6
+            {
+                username_cell.backgroundColor = {
+                    "red": 0.949,
+                    "green": 0.8784,
+                    "blue": 0.9647,
+                    "alpha": 1.0
+                };
+            }
+            else if(currElement[1] === "Restoration1" || currElement[1] === "Enhancement" || currElement[1] === "Elemental") // #4b91e7
+            {
+                username_cell.backgroundColor = {
+                    "red": 0.2941,
+                    "green": 0.5686,
+                    "blue": 0.9059,
+                    "alpha": 1.0
+                };
+            }
+            else if(currElement[1] === "Restoration" || currElement[1] === "Guardian" || currElement[1] === "Feral" || currElement[1] === "Balance") // #faab6f
+            {
+                username_cell.backgroundColor = {
+                    "red": 0.9804,
+                    "green": 0.6706,
+                    "blue": 0.4353,
+                    "alpha": 1.0
+                };
+            }
+            else if(currElement[1] === "Late") // #99cc33
+            {
+                username_cell.backgroundColor = {
+                    "red": 0.6,
+                    "green": 0.8,
+                    "blue": 0.2,
+                    "alpha": 1.0
+                };
+            }
+            else if(currElement[1] === "Holy1" || currElement[1] === "Retribution" || currElement[1] === "Protection1") // #ffc2d2
+            {
+                username_cell.backgroundColor = {
+                    "red": 1,
+                    "green": 0.7608,
+                    "blue": 0.8235,
+                    "alpha": 1.0
+                };
+            }
+            else if(currElement[1] === "Bench") // #339900
+            {
+                username_cell.backgroundColor = {
+                    "red": 0.2,
+                    "green": 0.6,
+                    "blue": 0.0,
+                    "alpha": 1.0
+                };
+            }
+            else if(currElement[1] === "Tentative") // #ffcc00
             {
                 username_cell.backgroundColor = {
                     "red": 1.0,
-                    "green": 1.0,
-                    "blue": 1.0,
+                    "green": 0.8,
+                    "blue": 0.0,
                     "alpha": 1.0
                 };
-            }
-            else if(sign_up_order[sign_up][1] === "RestoShaman" || sign_up_order[sign_up][1] === "Enhancer" || sign_up_order[sign_up][1] === "Elemental") // #0070DE
-            {
-                username_cell.backgroundColor = {
-                    "red": 0.701,
-                    "green": 0.850,
-                    "blue": 1.0,
-                    "alpha": 1.0
-                };
-            }
-            else if(sign_up_order[sign_up][1] === "RestoDruid" || sign_up_order[sign_up][1] === "Bear" || sign_up_order[sign_up][1] === "Feral" || sign_up_order[sign_up][1] === "Balance") // #FF7D0A
-            {
-                username_cell.backgroundColor = {
-                    "red": 1.0,
-                    "green": 0.862,
-                    "blue": 0.741,
-                    "alpha": 1.0
-                };
-            }
-            else if(sign_up_order[sign_up][1] === "Late") // #F58CBA
-            {
-                username_cell.backgroundColor = {
-                    "red": 0.984,
-                    "green": 0.796,
-                    "blue": 0.878,
-                    "alpha": 1.0
-                };
-            }
-            else if(sign_up_order[sign_up][1] === "Bench") // #A330C9
-            {
-                username_cell.backgroundColor = {
-                    "red": 0.898,
-                    "green": 0.756,
-                    "blue": 0.941,
-                    "alpha": 1.0
-                };
-            }
-            else if(sign_up_order[sign_up][1] === "Tentative") // #00FF96
-            {
-                username_cell.backgroundColor = {
-                    "red": 0.741,
-                    "green": 1.0,
-                    "blue": 0.894,
-                    "alpha": 1.0
-                };
-            }
-            else if(sign_up_order[sign_up][1] === "Absence") // #C41F3B
-            {
-                username_cell.backgroundColor = {
-                    "red": 0.921,
-                    "green": 0.458,
-                    "blue": 0.537,
-                    "alpha": 1.0
-                };
-            }
-        }
-    }
-
-    for (let i = 0; i < raid_helper_reactions.length; i++) {
-        const role_title = event_sheet.getCell(1, i + 3);
-
-        const role_count_regex = /\(([^)]*)\)/g; // everything between `**[<find stuff here>]`
-
-        const role_count_match = regexFirstMatch(role_count_regex, role_title.value); // length 0 if nothing found
-
-        let role_count = 0;
-        let less = false;
-
-        if(role_count_match != null && role_count_match.length > 0)
-        {
-            role_count = parseInt(role_count_match[0]);
-
-            less = role_count > role_sign_up_data[raid_helper_reactions[i]].length;
-        }
-
-        if(less)
-        {
-            const difference = role_count - role_sign_up_data[raid_helper_reactions[i]].length;
-
-            for (let j = 2 + role_sign_up_data[raid_helper_reactions[i]].length + difference - 1; j > role_sign_up_data[raid_helper_reactions[i]].length + 1; j--) {
-                if (event_sheet != null) {
-                    const cell = event_sheet.getCell(j, i + 3);
-                    cell.value = "";
-                    cell.clearAllFormatting();
-                }
-            }
-        }
-
-        role_title.value = raid_helper_reactions[i] + " (" + role_sign_up_data[raid_helper_reactions[i]].length + ")";
-        role_title.textFormat = { bold: true };
-
-        console.log(`Colour: ${role_title}`);
-
-        if(raid_helper_reactions[i] === "Tank" || raid_helper_reactions[i] === "Warrior") // #C79C6E
-        {
-            role_title.backgroundColor = {
-                "red": 0.78,
-                "green": 0.612,
-                "blue": 0.431,
-                "alpha": 1.0
-            };
-        }
-        else if(raid_helper_reactions[i] === "Rogue") // #FFF569
-        {
-            role_title.backgroundColor = {
-                "red": 1.0,
-                "green": 0.961,
-                "blue": 0.412,
-                "alpha": 1.0
-            };
-        }
-        else if(raid_helper_reactions[i] === "Hunter") // #ABD473
-        {
-            role_title.backgroundColor = {
-                "red": 0.671,
-                "green": 0.831,
-                "blue": 0.451,
-                "alpha": 1.0
-            };
-        }
-        else if(raid_helper_reactions[i] === "Mage") // #69CCF0
-        {
-            role_title.backgroundColor = {
-                "red": 0.412,
-                "green": 0.8,
-                "blue": 0.941,
-                "alpha": 1.0
-            };
-        }
-        else if(raid_helper_reactions[i] === "Warlock") // #9482C9
-        {
-            role_title.backgroundColor = {
-                "red": 0.58,
-                "green": 0.51,
-                "blue": 0.788,
-                "alpha": 1.0
-            };
-        }
-        else if(raid_helper_reactions[i] === "Priest") // #FFFFFF
-        {
-            role_title.backgroundColor = {
-                "red": 1.0,
-                "green": 1.0,
-                "blue": 1.0,
-                "alpha": 1.0
-            };
-        }
-        else if(raid_helper_reactions[i] === "Shadow") // #FFFFFF
-        {
-            role_title.backgroundColor = {
-                "red": 1.0,
-                "green": 1.0,
-                "blue": 1.0,
-                "alpha": 1.0
-            };
-        }
-        else if(raid_helper_reactions[i] === "RestoShaman" || raid_helper_reactions[i] === "Enhancer" || raid_helper_reactions[i] === "Elemental") // #0070DE
-        {
-            role_title.backgroundColor = {
-                "red": 0.0,
-                "green": 0.439,
-                "blue": 0.871,
-                "alpha": 1.0
-            };
-        }
-        else if(raid_helper_reactions[i] === "RestoDruid" || raid_helper_reactions[i] === "Bear" || raid_helper_reactions[i] === "Feral" || raid_helper_reactions[i] === "Balance") // #FF7D0A
-        {
-            role_title.backgroundColor = {
-                "red": 1.0,
-                "green": 0.49,
-                "blue": 0.039,
-                "alpha": 1.0
-            };
-        }
-        else if(raid_helper_reactions[i] === "Late") // #F58CBA
-        {
-            role_title.backgroundColor = {
-                "red": 0.960,
-                "green": 0.549,
-                "blue": 0.729,
-                "alpha": 1.0
-            };
-        }
-        else if(raid_helper_reactions[i] === "Bench") // #A330C9
-        {
-            role_title.backgroundColor = {
-                "red": 0.639,
-                "green": 0.188,
-                "blue": 0.788,
-                "alpha": 1.0
-            };
-        }
-        else if(raid_helper_reactions[i] === "Tentative") // #00FF96
-        {
-            role_title.backgroundColor = {
-                "red": 0.0,
-                "green": 1.0,
-                "blue": 0.588,
-                "alpha": 1.0
-            };
-        }
-        else if(raid_helper_reactions[i] === "Absence") // #C41F3B
-        {
-            role_title.backgroundColor = {
-                "red": 0.768,
-                "green": 0.768,
-                "blue": 0.121,
-                "alpha": 1.0
-            };
-        }
-
-        for (let j = 0; j < role_sign_up_data[raid_helper_reactions[i]].length; j++) {
-            // console.log(`Cell: ${i}, ${j} - ${role_sign_up_data[raid_helper_reactions[i]][j]}`);
-            if (event_sheet != null) {
-                const cell = event_sheet.getCell(j + 2, i + 3);
-                cell.value = role_sign_up_data[raid_helper_reactions[i]][j][0];
-
-                if(raid_helper_reactions[i] === "Tank" || raid_helper_reactions[i] === "Warrior") // #C79C6E
-                {
-                    cell.backgroundColor = {
-                        "red": 0.898,
-                        "green": 0.823,
-                        "blue": 0.741,
-                        "alpha": 1.0
-                    };
-                }
-                else if(raid_helper_reactions[i] === "Rogue") // #FFF569
-                {
-                    cell.backgroundColor = {
-                        "red": 1.0,
-                        "green": 0.988,
-                        "blue": 0.8,
-                        "alpha": 1.0
-                    };
-                }
-                else if(raid_helper_reactions[i] === "Hunter") // #ABD473
-                {
-                    cell.backgroundColor = {
-                        "red": 0.870,
-                        "green": 0.933,
-                        "blue": 0.788,
-                        "alpha": 1.0
-                    };
-                }
-                else if(raid_helper_reactions[i] === "Mage") // #69CCF0
-                {
-                    cell.backgroundColor = {
-                        "red": 0.780,
-                        "green": 0.925,
-                        "blue": 0.980,
-                        "alpha": 1.0
-                    };
-                }
-                else if(raid_helper_reactions[i] === "Warlock") // #9482C9
-                {
-                    cell.backgroundColor = {
-                        "red": 0.831,
-                        "green": 0.803,
-                        "blue": 0.913,
-                        "alpha": 1.0
-                    };
-                }
-                else if(raid_helper_reactions[i] === "Priest") // #FFFFFF
-                {
-                    cell.backgroundColor = {
-                        "red": 1.0,
-                        "green": 1.0,
-                        "blue": 1.0,
-                        "alpha": 1.0
-                    };
-                }
-                else if(raid_helper_reactions[i] === "Shadow") // #FFFFFF
-                {
-                    cell.backgroundColor = {
-                        "red": 1.0,
-                        "green": 1.0,
-                        "blue": 1.0,
-                        "alpha": 1.0
-                    };
-                }
-                else if(raid_helper_reactions[i] === "RestoShaman" || raid_helper_reactions[i] === "Enhancer" || raid_helper_reactions[i] === "Elemental") // #0070DE
-                {
-                    cell.backgroundColor = {
-                        "red": 0.701,
-                        "green": 0.850,
-                        "blue": 1.0,
-                        "alpha": 1.0
-                    };
-                }
-                else if(raid_helper_reactions[i] === "RestoDruid" || raid_helper_reactions[i] === "Bear" || raid_helper_reactions[i] === "Feral" || raid_helper_reactions[i] === "Balance") // #FF7D0A
-                {
-                    cell.backgroundColor = {
-                        "red": 1.0,
-                        "green": 0.862,
-                        "blue": 0.741,
-                        "alpha": 1.0
-                    };
-                }
-                else if(raid_helper_reactions[i] === "Late") // #F58CBA
-                {
-                    cell.backgroundColor = {
-                        "red": 0.984,
-                        "green": 0.796,
-                        "blue": 0.878,
-                        "alpha": 1.0
-                    };
-                }
-                else if(raid_helper_reactions[i] === "Bench") // #A330C9
-                {
-                    cell.backgroundColor = {
-                        "red": 0.898,
-                        "green": 0.756,
-                        "blue": 0.941,
-                        "alpha": 1.0
-                    };
-                }
-                else if(raid_helper_reactions[i] === "Tentative") // #00FF96
-                {
-                    cell.backgroundColor = {
-                        "red": 0.741,
-                        "green": 1.0,
-                        "blue": 0.894,
-                        "alpha": 1.0
-                    };
-                }
-                else if(raid_helper_reactions[i] === "Absence") // #C41F3B
-                {
-                    cell.backgroundColor = {
-                        "red": 0.921,
-                        "green": 0.458,
-                        "blue": 0.537,
-                        "alpha": 1.0
-                    };
-                }
             }
         }
     }
@@ -575,6 +376,7 @@ function getSavedSettings(guild_id) {
             savedData = [];
         }
     } catch (e) {
+        console.error(e);
         throw `Failed to load saved settings for: ${guild_id}.`;
     }
 
@@ -617,13 +419,11 @@ function regexFirstMatch(regular_expression, content) {
 
 function getEventTitle(eventMessage, showLogging) {
     const titleField = eventMessage.embeds[0].description;
-    
-    console.log(`Title: ${titleField}`);
 
     const title_caps_text_regex = /\<\:(.*?)\:/gm; // everything between ``<find stuff here>``
 
     const title_blocks = regexMatchAll(title_caps_text_regex, titleField); // length 0 if nothing found
-    
+
     let title_text = ``;
     
     if(title_blocks.length) {
@@ -663,64 +463,31 @@ function getEventTitle(eventMessage, showLogging) {
 }
 
 function getEventDate(event_message, showLogging) {
-    const date_field = event_message.embeds[0].fields[1]; // assuming date is always at this index (might be dumb)
 
+    const date_field = event_message.embeds[0].fields[1]; // assuming date is always at this index (might be dumb)
+    
     if(showLogging)
         console.log(`Date: ${date_field.value}`);
 
     const date_text_regex = /\*{2}\[(.*?)\]/gm; // everything between `**[<find stuff here>]`
 
-    const date_text = regexFirstMatch(date_text_regex, date_field.value); // length 0 if nothing found
+    let date_text = regexFirstMatch(date_text_regex, date_field.value); // length 0 if nothing found
+	
+    // handling a different format of <:CMcalendar:592462264670617641> <t:1647576000:D>
+    if(date_text === null) {
+	    const date_ts_regex = /<t:(.*?):D>/gm;
+	    let date_ts = regexFirstMatch(date_ts_regex, date_field.value);
+	    let this_date = new Date();
+	    this_date.setTime(date_ts*1000);
+	    date_text = weekday[this_date.getDay()] + ' ' + this_date.getDate() + ' ' + month[this_date.getMonth()];
+    }
 
-    if(showLogging)
+    if(showLogging) {
         console.log(`Date Text: ${date_text}`);
+    }
 
     return date_text;
 }
-
-let roleMapping = {};
-
-// order in which they appear in event
-roleMapping["Tank"] = ["Tank", "Bear", "ProtPaladin"];
-roleMapping["Warrior"] = ["Warrior"];
-roleMapping["Rogue"] = ["Rogue"];
-roleMapping["Hunter"] = ["Hunter"];
-roleMapping["Mage"] = ["Mage"];
-roleMapping["Warlock"] = ["Warlock"];
-roleMapping["Druid"] = ["RestoDruid", "Balance", "Feral"];
-roleMapping["Shaman"] = ["Elemental", "Enhancer", "RestoShaman"];
-roleMapping["Priest"] = ["Priest", "Shadow"];
-roleMapping["Paladin"] = ["HolyPaladin", "Retri"];
-roleMapping["Late"] = ["Late"];
-roleMapping["Bench"] = ["Bench"];
-roleMapping["Tentative"] = ["Tentative"];
-roleMapping["Absence"] = ["Absence"];
-
-// [
-// 'Tank',        'Warrior',
-//     'Rogue',       'Hunter',
-//     'Mage',        'Warlock',
-//     'Priest',      'Shadow',
-//     'RestoShaman', 'Enhancer',
-//     'Elemental',   'RestoDruid',
-//     'Bear',        'Feral',
-//     'Balance',     'Late',
-//     'Bench',       'Tentative',
-//     'Absence'
-// ]
-
-// [
-// 'Tank',        'Warrior',
-//     'Rogue',       'Hunter',
-//     'Mage',        'Warlock',
-//     'Priest',      'Shadow',
-//     'HolyPaladin', 'Retri',
-//     'ProtPaladin', 'RestoDruid',
-//     'Bear',        'Feral',
-//     'Balance',     'Late',
-//     'Bench',       'Tentative',
-//     'Absence'
-// ]
 
 function getEventData(event_message, raid_helper_reactions, showLogging) {
     // iterate through embed fields to extract role counts, order and populate above
@@ -776,32 +543,34 @@ function getEventData(event_message, raid_helper_reactions, showLogging) {
                 }
 
                 for (let sign_up in raw_role_data) {
-                    const class_regex = /\:(.*?)\:/gm; // everything between :<find stuff here>:
-                    const sign_up_order_regex = /\`{1}(.*?)\`{1}/gm; // everything between ``<find stuff here>``
-                    const username_regex = /\*{2}(.*?)\*{2}/gm; // everything between **<find stuff here>**
 
-                    let class_match = regexFirstMatch(class_regex, raw_role_data[sign_up]); // null if nothing found
-                    const signup_order_match = regexFirstMatch(sign_up_order_regex, raw_role_data[sign_up]); // null if nothing found
-                    const signup_username_match = regexFirstMatch(username_regex, raw_role_data[sign_up]); // null if nothing found
+                    const raw_role_pattern = /<:(?<role>[a-zA-Z0-9]+):[0-9]+>\s(?:[a-zA-Z0-9]+\s\([0-9]+\)\s+:\s+(<:(?<realRole>[a-zA-Z0-9]+):[0-9]+>\s+)?)?\s*`(?<num>[0-9]+)`\s\*\*(?<name>.*)\*\*/g;
+                    const match = raw_role_pattern.exec(raw_role_data[sign_up]);
 
-                    if(role === "Late" || role === "Bench" || role === "Tentative" || role === "Absence") {
-                        class_match = role;
-                    }
-
-                    if (class_match != null && signup_order_match != null && signup_username_match != null) {
+                    if(match){
                         let sign_up_info = [];
+                        const signup_username_match = match.groups.name;
+                        const signup_order_match = match.groups.num;
+                        var class_match = match.groups.role;
+                       if(role === "Late" || role === "Bench" || role === "Tentative" || role === "Absence") {
+                           class_match = role;
+                       }
                         sign_up_info.push(signup_username_match);
                         sign_up_info.push(signup_order_match); // going to keep order just in case
-
                         role_classes[class_match].push(sign_up_info);
 
                         let name_and_role = [];
 
                         name_and_role.push(signup_username_match);
                         name_and_role.push(class_match);
+                        if(match.groups.realRole){
+                            name_and_role.push(match.groups.realRole);
+                        }
 
                         // map sign up order to username
                         sign_up_order[signup_order_match] = name_and_role;
+                    } else{
+                        console.error("Unable to process " + raw_role_data[sign_up]);
                     }
                 }
 
@@ -815,6 +584,25 @@ function getEventData(event_message, raid_helper_reactions, showLogging) {
             role_sign_up_data[sub_role] = role_and_class_data[role][sub_role];
         }
     }
+    
+    // Condense from TBC roles back to something that fits in sheets.
+    
+    role_sign_up_data["Mage"] = [...role_sign_up_data["Fire"], ...role_sign_up_data["Frost"], ...role_sign_up_data["Arcane"]];
+    delete role_sign_up_data["Fire"];
+    delete role_sign_up_data["Frost"];
+    delete role_sign_up_data["Arcane"];
+    role_sign_up_data["Warlock"] = [...role_sign_up_data["Destruction"], ...role_sign_up_data["Demonology"], ...role_sign_up_data["Affliction"]];
+    delete role_sign_up_data["Destruction"];
+    delete role_sign_up_data["Demonology"];
+    delete role_sign_up_data["Affliction"];
+    role_sign_up_data["Hunter"] = [...role_sign_up_data["Beastmastery"], ...role_sign_up_data["Survival"], ...role_sign_up_data["Marksmanship"]];
+    delete role_sign_up_data["Beastmastery"];
+    delete role_sign_up_data["Survival"];
+    delete role_sign_up_data["Marksmanship"];
+    role_sign_up_data["Rogue"] = [...role_sign_up_data["Subtlety"], ...role_sign_up_data["Assassination"], ...role_sign_up_data["Combat"]];
+    delete role_sign_up_data["Subtlety"];
+    delete role_sign_up_data["Assassination"];
+    delete role_sign_up_data["Combat"];
 
     if(showLogging) {
         // console.log("Sign up data:");
@@ -837,7 +625,7 @@ async function getEventReactions(event_message) {
         for (let user in users) {
             if (users[user].bot) {
                 raid_helper_reactions.push(reactions[reaction].emoji.name)
-                // console.log(`Role: ${eventReactions[reaction].emoji.name}, username: ${users[user].username}`);
+                console.log(`Role: ${reactions[reaction].emoji.name}, username: ${users[user].username}`);
                 break;
             }
         }
@@ -874,7 +662,6 @@ async function userMessages(guildID, userID, showLogging){
                             event_message_ids.push(channel_and_message_ids);
                         }
                     }
-
                     /* Before if you wanna change it
                     const filtered_messages = messages.filter(m => m.author.id === userID).array();
                     
@@ -898,6 +685,7 @@ async function userMessages(guildID, userID, showLogging){
             } catch (e) {
                 if(showLogging)
                     console.log("Could not grab message from " + channels[i].name + ", moving on.")
+                    console.log("Error " + e)
                 continue;
             }
         }
@@ -907,7 +695,7 @@ async function userMessages(guildID, userID, showLogging){
 
         return event_message_ids;
     } catch (e) {
-        console.log(`Failed to get channels available.`)
+        console.error(e);
         return [];
     }
 }
@@ -925,7 +713,8 @@ async function extractInfoAndUpdateSheet(guildID, showLogging) {
                 }
 
                 const event_title = getEventTitle(event_message, showLogging);
-
+                //console.log("Raw Event Message");
+                console.log(event_message);
                 const date_text = getEventDate(event_message, showLogging);
 
                                    //date_text + ` | ` + event_title;
@@ -939,33 +728,41 @@ async function extractInfoAndUpdateSheet(guildID, showLogging) {
 
                 if(showLogging)
                     console.log(`Sheet name: ${sheet_name}`);
-
+                // this doesn't seem to be valid.  see TODO001
                 let raid_helper_reactions = await getEventReactions(event_message);
 
                 if(showLogging) {
-                    console.log("Roles:");
-                    console.log(raid_helper_reactions);
+                    // console.log("Roles:");
+                    // console.log(raid_helper_reactions);
                 }
-
+                // this doesn't seem to the be way.. TODO001 -
                 let {role_sign_up_data, sign_up_order} = getEventData(event_message, raid_helper_reactions, showLogging);
-
+                
                 if (event_sheet != null) {
-                    await updateEventSheet(event_sheet, sign_up_order, raid_helper_reactions, role_sign_up_data);
+                    // TODO001 - also changed 
+                    // await updateEventSheet(event_sheet, sign_up_order, raid_helper_reactions, role_sign_up_data);
+                    await updateEventSheet(event_sheet, sign_up_order, Object.keys(role_sign_up_data), role_sign_up_data);
                 }
             }
         }
-    } catch (error) {
+    } catch (e) {
+        console.error(e);
         console.log(`failed to count roles: ${error}`);
     }
 }
 
 function checkUserRole(member, msg) {
-    // if admin or officer then has permission
-    if (member.roles.cache.some(role => role.name === 'Admin' || role.name === 'Officer')) {
-        // console.log(`${msg.author.username} has permission to run.`);
+    
+    let roles_with_access = ["Admin","Guild Officer"];
+    if(process.env.DISCORD_ROLES) { 
+        roles_with_access = process.env.DISCORD_ROLES.split(",");
+    }
+
+    if (member.roles.cache.some(role => roles_with_access.includes(role.name))) {
+        console.log(`${msg.author.username} has permission to run.`);
         return true;
     } else {
-        // console.log(`${msg.author.username} does not have permission to run.`);
+        console.log(`${msg.author.username} does not have permission to run.`);
         return false;
     }
 }
@@ -980,6 +777,7 @@ function userCanRunCommand(msg) {
         has_permissions = checkUserRole(member, msg);
 
     } catch (e) {
+        console.error(e);
         Console.log(`Failed to check permissions.`)
     }
 
@@ -1023,6 +821,7 @@ client.on("message", async msg => {
                     await writeSavedSettings(filename, [], true);
                 }
             } catch (e) {
+                console.error(e);
                 console.log("Failed to clear config file.")
             }
         }
@@ -1035,6 +834,7 @@ client.on("message", async msg => {
                     await autoTask();
                 }
             } catch (e) {
+                console.error(e);
                 console.log("Failed to auto run.")
             }
         }
@@ -1062,6 +862,7 @@ client.on("message", async msg => {
                     }
                 }
             } catch (e) {
+                console.error(e);
                 console.log("Failed to sync message & channel IDs.")
             }
         }
@@ -1073,10 +874,12 @@ client.on("message", async msg => {
                     await extractInfoAndUpdateSheet(msg.channel.guild.id, true);
                 }
             } catch (e) {
+                console.error(e);
                 console.log("Failed to update spreadsheet.")
             }
         }
     } catch (e) {
+        console.error(e);
         console.log(`Failed to process message.`);
     }
 })
@@ -1084,15 +887,17 @@ client.on("message", async msg => {
 try {
     client.login(process.env.DISCORD_BOT_TOKEN);
 } catch (e) {
+    console.error(e);
     console.log("Bot failed to login to discord.");
 }
 
-schedule.scheduleJob('*/15 * * * *', async function(){  // this for one hour
+schedule.scheduleJob('*/5 * * * *', async function(){  // this for one hour
     try {
         await autoTask();
 
         console.log('Scheduled task complete.');
     } catch (e) {
+        console.error(e);
         console.log("Failed scheduled task.")
     }
 });
