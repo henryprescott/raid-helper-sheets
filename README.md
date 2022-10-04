@@ -1,9 +1,3 @@
-# Raid Helper
-
-[If you don't know about Raid Helper, check it out.  It's amazing!](https://raid-helper.com/index)
-
------
-
 # raid-helper-sheets
 
 The idea behind this project is to piggyback onto Raid Helper - "a feature-rich event organization tool for discord", listening in to events, taking those details and stuffing them into a Google Sheet.
@@ -89,5 +83,4 @@ Which will grant users with (Admin) or users with (Guild OFficer) access to use 
 currently have to manual edit the Roles in the app - should be exposed via parameter (see checkUserRole function)
 
 currently have to tweak the filter to find the raid-helper posts to ingest- should be exposed via the parameter
-
 

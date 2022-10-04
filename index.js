@@ -1,5 +1,7 @@
 'use strict'
 
+//!updateroster - main command to export latest Raid-Helper events
+
 require('dotenv').config();
 
 const fs = require('fs')
@@ -7,7 +9,9 @@ const fs = require('fs')
 const { GoogleSpreadsheet } = require('google-spreadsheet');
 
 var schedule = require('node-schedule');
-const Discord = require("discord.js")
+const Discord = require("discord.js");
+const { title } = require('process');
+const { measureMemory } = require('vm');
 const client = new Discord.Client({ partials: ['MESSAGE', 'CHANNEL', 'REACTION'] })
 
 let roleMapping = {};
@@ -54,23 +58,33 @@ function lookupClass(spec)
 
 client.on("ready",() => {
     console.log(`Logged in as ${client.user.tag}!`)
-})
+    console.log(process.env.GOOGLE_SPREADSHEET_ID);
+    console.log(process.env.GOOGLE_SERVICE_ACCOUNT_EMAIL);
+    client.user.setPresence({
+        status: 'available',
+        activity: {
+            name: 'signup sheets...',
+            type: 'WATCHING',
+            url: 'https://discord.com'
+        }
+    });
+});
 
 /* Google Spreadsheet code */
 
 async function getSpreadSheet(spreadsheetID) {
     const spreadsheet = new GoogleSpreadsheet(spreadsheetID);
 
-    // console.log(process.env.GOOGLE_SPREADSHEET_ID);
+    //console.log(process.env.GOOGLE_SPREADSHEET_ID);
 
-    // console.log(process.env.GOOGLE_SERVICE_ACCOUNT_EMAIL);
-    // console.log(process.env.GOOGLE_PRIVATE_KEY);
+    //console.log(process.env.GOOGLE_SERVICE_ACCOUNT_EMAIL);
+    //console.log(process.env.GOOGLE_PRIVATE_KEY);
 
     try {
         // use service account creds
         await spreadsheet.useServiceAccountAuth({
-            client_email: JSON.parse(`"${process.env.GOOGLE_SERVICE_ACCOUNT_EMAIL}"`),
-            private_key: JSON.parse(`"${process.env.GOOGLE_PRIVATE_KEY}"`),
+            client_email: process.env.GOOGLE_SERVICE_ACCOUNT_EMAIL,
+            private_key: process.env.GOOGLE_PRIVATE_KEY.replace(/\\n/gm, '\n')
         });
     } catch (e) {
         console.error(e);
@@ -94,7 +108,7 @@ const range_of_cells_to_load = { // GridRange object
 async function checkEventSheetExists(sheetName) {
     try {
         const spreadsheet = await getSpreadSheet(process.env.GOOGLE_SPREADSHEET_ID);
-
+        
         try {
             for (let sheet in spreadsheet.sheetsByIndex) {
                 if (spreadsheet.sheetsByIndex[sheet].title === sheetName) {
@@ -146,6 +160,7 @@ async function createEventSheet(sheetName, showLogging) {
 
 async function updateEventSheet(event_sheet, sign_up_order, raid_helper_reactions, role_sign_up_data) {
     const order_title_cell = event_sheet.getCell(0, 0);
+    
     order_title_cell.value = "Sign Up Order";
     order_title_cell.textFormat = { bold: true };
 
@@ -325,15 +340,6 @@ async function updateEventSheet(event_sheet, sign_up_order, raid_helper_reaction
                     "alpha": 1.0
                 };
             }
-            else if(currElement[1] === "Absence") // #cc3300
-            {
-                username_cell.backgroundColor = {
-                    "red": 0.8,
-                    "green": 0.2,
-                    "blue": 0.0,
-                    "alpha": 1.0
-                };
-            }
         }
     }
 
@@ -357,7 +363,7 @@ async function writeSavedSettings(filename, message_ids, showLogging) {
 
 function getSavedSettings(guild_id) {
 
-    let filename = `./` + guild_id + `.json`;
+    let filename = `./data/` + guild_id + `.json`;
 
     let savedData = [];
 
@@ -414,14 +420,12 @@ function regexFirstMatch(regular_expression, content) {
 function getEventTitle(eventMessage, showLogging) {
     const titleField = eventMessage.embeds[0].description;
 
-    // console.log(`Title: ${titleField.value}`);
-
     const title_caps_text_regex = /\<\:(.*?)\:/gm; // everything between ``<find stuff here>``
 
     const title_blocks = regexMatchAll(title_caps_text_regex, titleField); // length 0 if nothing found
 
     let title_text = ``;
-
+    
     if(title_blocks.length) {
         // remove trailing _ to leave correct characters
         // replace empty with " "
@@ -459,12 +463,9 @@ function getEventTitle(eventMessage, showLogging) {
 }
 
 function getEventDate(event_message, showLogging) {
-    const month = ["January","February","March","April","May","June","July","August","September","October","November","December"];
-    const weekday = ["Sun","Mon","Tue","Wed","Thu","Fri","Sat"];
+
+    const date_field = event_message.embeds[0].fields[1]; // assuming date is always at this index (might be dumb)
     
-    const date_field = event_message.embeds[0].fields[0]; // assuming date is always at this index (might be dumb)
-    
-    console.log(`Date: ${date_field.value}`);
     if(showLogging)
         console.log(`Date: ${date_field.value}`);
 
@@ -640,32 +641,46 @@ async function userMessages(guildID, userID, showLogging){
         let event_message_ids = [];
 
         const channels = await client.guilds.cache.get(guildID).channels.cache.array();
-
+        
         for(let i = 0; i < channels.length; i++) {
             try {
                 if (channels[i].type === 'text') {
+                    const messages = await channels[i].messages.fetch();
+                    
+                    const filtered_messages = messages.filter(m => m.author.id === userID).first();
+                    
+                    if(filtered_messages.embeds.length > 0) {
+                        const title_regex = /\*{2}(.*?)\*{2}/gm; // everything between **<find stuff here>**
 
-                        const messages = await channels[i].messages.fetch();
-
-                        const filtered_messages = messages.filter(m => m.author.id === userID).array();
-
-                        for(let j = 0; j < filtered_messages.length; j++) {
-                            if(filtered_messages[j].embeds.length > 0) {
-
-                                // const title_regex = /\*{2}(.*?)\*{2}/gm; // everything between **<find stuff here>**
-                                // console.log(JSON.stringify(filtered_messages[j],null,2))
-
-                                // const title_match = regexFirstMatch(title_regex, filtered_messages[j].embeds[0].fields[1].value); // null if nothing found
-                                // console.log(JSON.stringify(filtered_messages[j].embeds[0],null,2))
-                                //if(filtered_messages[j].embeds[0].description.trim().substring(0,6) === "Leader:") {
-                                    // console.log(`Event found: ${filtered_messages[j].id}`)
-                                let channel_and_message_ids = [];
-                                channel_and_message_ids.push(channels[i].id);
-                                channel_and_message_ids.push(filtered_messages[j].id);
-                                event_message_ids.push(channel_and_message_ids);
-                                //}
-                            }
+                        const title_match = regexFirstMatch(title_regex, filtered_messages.embeds[0].fields[1].value); // null if nothing found
+                        
+                        if(title_match != null/* && title_match === "Info:"*/) {
+                            console.log(`Event found: ${filtered_messages.id}`)
+                            let channel_and_message_ids = [];
+                            channel_and_message_ids.push(channels[i].id);
+                            channel_and_message_ids.push(filtered_messages.id);
+                            event_message_ids.push(channel_and_message_ids);
                         }
+                    }
+                    /* Before if you wanna change it
+                    const filtered_messages = messages.filter(m => m.author.id === userID).array();
+                    
+                    const j = filtered_messages.length - 1;
+
+                    if(filtered_messages[j].embeds.length > 0) {
+                        const title_regex = /\*{2}(.*?)\*{2}/gm; // everything between **<find stuff here>**
+
+                        const title_match = regexFirstMatch(title_regex, filtered_messages[j].embeds[0].fields[1].value); // null if nothing found
+                        
+                        if(title_match != null) {
+                            console.log(`Event found: ${filtered_messages[j].id}`)
+                            let channel_and_message_ids = [];
+                            channel_and_message_ids.push(channels[i].id);
+                            channel_and_message_ids.push(filtered_messages[j].id);
+                            event_message_ids.push(channel_and_message_ids);
+                        }
+                    }
+                    */
                 }
             } catch (e) {
                 if(showLogging)
@@ -688,12 +703,11 @@ async function userMessages(guildID, userID, showLogging){
 async function extractInfoAndUpdateSheet(guildID, showLogging) {
     try {
         let event_message_ids = getSavedSettings(guildID);
-
+        
         for (let i = 0; i < event_message_ids.length; i++) {
             const event_message = await client.channels.cache.get(event_message_ids[i][0]).messages.fetch(event_message_ids[i][1]);
-
+            
             if (event_message != null && event_message.author.username === "Raid-Helper") {
-
                 if (event_message.embeds.length <= 0 || event_message.embeds[0].fields.length <= 0) {
                     throw "Message doesn't have embeds.";
                 }
@@ -703,7 +717,8 @@ async function extractInfoAndUpdateSheet(guildID, showLogging) {
                 console.log(event_message);
                 const date_text = getEventDate(event_message, showLogging);
 
-                const sheet_name = date_text + ` | ` + event_title;
+                                   //date_text + ` | ` + event_title;
+                const sheet_name = event_title;
 
                 let event_sheet = await checkEventSheetExists(sheet_name);
 
@@ -785,7 +800,7 @@ async function autoTask() {
     for( let i = 0; i < guilds.length; i++) {
         const event_message_ids = await userMessages(guilds[i].id, raid_bot.id, false);
 
-        let filename = `./` + guilds[i].id + `.json`;
+        let filename = `./data/` + guilds[i].id + `.json`;
 
         await writeSavedSettings(filename, event_message_ids);
 
@@ -801,7 +816,7 @@ client.on("message", async msg => {
             msg.delete({timeout: 100});
             try {
                 if (userCanRunCommand(msg)) {
-                    let filename = `./` + msg.channel.guild.id + `.json`;
+                    let filename = `./data/` + msg.channel.guild.id + `.json`;
 
                     await writeSavedSettings(filename, [], true);
                 }
@@ -811,10 +826,11 @@ client.on("message", async msg => {
             }
         }
 
-        if (msg.content === "!test") {
+        if (msg.content === "!updateroster") {
             msg.delete({timeout: 100});
             try {
                 if (userCanRunCommand(msg)) {
+                    console.log("Updating rosters...");
                     await autoTask();
                 }
             } catch (e) {
@@ -837,7 +853,7 @@ client.on("message", async msg => {
 
                         console.log("mesages: " + event_message_ids);
 
-                        let filename = `./` + msg.channel.guild.id + `.json`;
+                        let filename = `./data/` + msg.channel.guild.id + `.json`;
 
                         await writeSavedSettings(filename, event_message_ids, true);
                     }
